@@ -36,8 +36,10 @@ func main{
 
     /// 1. Read and verify the previous proof
     // Read the previous proof from a hint
-    // TODO: implement me
-
+    %{
+        # TODO: implement me
+    %}
+    
     // Verify the previous proof
     // TODO: implement me
     let prev_mem_values = alloc();
@@ -52,7 +54,9 @@ func main{
 
     /// 2. Read and verify the next proof
     // Read the next proof from a hint
-    // TODO: implement me
+    %{
+        # TODO: implement me
+    %}
     
     // Verify the next proof
     let next_mem_values = alloc();
