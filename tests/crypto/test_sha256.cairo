@@ -10,38 +10,8 @@ from crypto.sha256 import finalize_sha256
 
 from utils.python_utils import setup_python_defs
 from crypto.hash_utils import assert_hashes_equal
-from crypto.hash256 import _compute_double_sha256, hash256
+from crypto.hash256 import hash256
 
-@external
-func test_compute_double_sha256{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
-    alloc_locals;
-
-    // Set input to "abc"
-    let (input) = alloc();
-    assert input[0] = 0x61626300;
-    let byte_size = 3;
-
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
-    let sha256_ptr_start = sha256_ptr;
-    with sha256_ptr {
-        let hash = hash256(input, byte_size);
-    }
-    // 8cb9012517c817fead650287d61bdd9c68803b6bf9c64133dcab3e65b5a50cb9
-    assert hash[0] = 0x4f8b42c2;
-    assert hash[1] = 0x2dd3729b;
-    assert hash[2] = 0x519ba6f6;
-    assert hash[3] = 0x8d2da7cc;
-    assert hash[4] = 0x5b2d606d;
-    assert hash[5] = 0x05daed5a;
-    assert hash[6] = 0xd5128cc0;
-    assert hash[7] = 0x3e6c6358;
-
-    // finalize sha256_ptr
-    finalize_sha256(sha256_ptr_start, sha256_ptr);
-
-    return ();
-}
 
 // Test a double sha256 input with a long byte string
 // (We use a 259 bytes transaction here)

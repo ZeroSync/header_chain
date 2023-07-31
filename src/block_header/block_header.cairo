@@ -11,6 +11,7 @@ from starkware.cairo.common.math import assert_le, unsigned_div_rem, assert_le_f
 from starkware.cairo.common.math_cmp import is_le_felt
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.uint256 import (
     Uint256,
     uint256_neg,
@@ -32,7 +33,7 @@ from utils.serialize import (
 from crypto.hash256 import hash256
 from crypto.hash_utils import assert_hashes_equal
 from utils.pow2 import pow2
-from block_header.median import compute_timestamps_median
+from block_header.median import compute_timestamps_median, TIMESTAMP_COUNT
 // The size of a block header is 80 bytes
 const BLOCK_HEADER_SIZE = 80;
 // The size of a block header encoded as an array of Uint32 is 20 felts
@@ -142,7 +143,6 @@ func fetch_block_header(block_height) -> felt* {
         block_hex = get_block_header_raw(ids.block_height)
         from_hex(block_hex, ids.raw_block_header)
     %}
-
     return raw_block_header;
 }
 
@@ -352,7 +352,7 @@ func next_prev_timestamps(context: BlockHeaderValidationContext) -> felt* {
 
     // Copy the 10 most recent timestamps from the previous state
     let prev_timestamps = context.prev_chain_state.prev_timestamps;
-    memcpy(timestamps + 1, prev_timestamps, 10);
+    memcpy(timestamps + 1, prev_timestamps, TIMESTAMP_COUNT - 1);
     return timestamps;
 }
 
@@ -481,7 +481,7 @@ func target_to_bits{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(target) -> fe
     let expected_target = bits_to_target(bits);
 
     let is_greater_than_2 = (2 - exponent) * (1 - exponent) * exponent;
-    if (is_greater_than_2 == 0) {
+    if (is_greater_than_2 == FALSE) {
         with_attr error_message("Hint provided an invalid value for `bits`") {
             assert expected_target = target;
         }

@@ -10,10 +10,10 @@ from crypto.sha256 import finalize_sha256
 
 from utils.python_utils import setup_python_defs
 from crypto.hash_utils import assert_hashes_equal
-from crypto.hash256 import _compute_double_sha256, hash256
+from crypto.hash256 import hash256
 
 @external
-func test_compute_double_sha256{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
+func test_hash256{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
     alloc_locals;
 
     // Set input to "abc"

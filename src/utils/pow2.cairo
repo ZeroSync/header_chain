@@ -1,10 +1,56 @@
-// This is taken from https://github.com/greenlucid/chess-cairo
 from starkware.cairo.common.registers import get_label_location
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
+from starkware.cairo.common.bitwise import bitwise_and
+from starkware.cairo.common.alloc import alloc
 
-// TODO: do we have to ensure i < 256 ??
-func pow2(i: felt) -> felt {
+// Ensures that 0 <= x < 256
+func assert_is_byte(x){
+    let (bits) = alloc();
+    %{
+        assert ids.x < 256, 'Input must be at most 1 byte'
+        binary = bin(ids.x)[2:].rjust(8, '0')[::-1]
+        for j in range(8):
+            if binary[j] == '1':
+                memory[ids.bits + j] = 2**j
+            else:
+                memory[ids.bits + j] = 0
+    %}
+    // Ensure all bits are actually "0" or "2**i"
+    assert 0 = bits[0] * (bits[0] - 1);
+    assert 0 = bits[1] * (bits[1] - 2);
+    assert 0 = bits[2] * (bits[2] - 4);
+    assert 0 = bits[3] * (bits[3] - 8);
+    assert 0 = bits[4] * (bits[4] - 16);
+    assert 0 = bits[5] * (bits[5] - 32);
+    assert 0 = bits[6] * (bits[6] - 64);
+    assert 0 = bits[7] * (bits[7] - 128);
+
+    // Ensure their sum is equal to the input
+    assert bits[0] + bits[1] + bits[2] + bits[3] + bits[4] + bits[5] + bits[6] + bits[7] = x;
+
+    return ();
+}
+
+// Computes 2 to the power of x
+func pow2(x) -> felt {
+    // Ensure the exponent is at most one byte
+    assert_is_byte(x);
+
+    // Ensure the exponent is not 255, 254, 253, or 252, 
+    // because our lookup table has only 252 entries
+    if ( 0 == (x - 255) * (x - 254) * (x - 253) * (x - 252) ){
+        assert 0 = 1;
+    } 
+
+    // Now it is safe to perform the actual computation
+    let result = unsafe_pow2(x);
+    return result;
+}
+
+// This function is unsafe. The caller has to ensure 0 <= x < 256
+func unsafe_pow2(x: felt) -> felt {
     let (data_address) = get_label_location(data);
-    return [data_address + i];
+    return [data_address + x];
 
     data:
     dw 0x1;
@@ -258,4 +304,5 @@ func pow2(i: felt) -> felt {
     dw 0x100000000000000000000000000000000000000000000000000000000000000;
     dw 0x200000000000000000000000000000000000000000000000000000000000000;
     dw 0x400000000000000000000000000000000000000000000000000000000000000;
+    dw 0x800000000000000000000000000000000000000000000000000000000000000;
 }

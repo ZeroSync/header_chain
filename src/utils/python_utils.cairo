@@ -3,7 +3,7 @@ func setup_python_defs() {
     %{
         # Note: This import requires $PYTHONPATH to include the zerosync path.
         #       Currently appended in Makefile.
-        from src.utils.header_db import get_block_header_raw
+        from recursion_setup.utils.header_db import get_block_header_raw
         import re
         def hex_to_felt(hex_string):
             # Seperate hex_string into chunks of 8 chars.

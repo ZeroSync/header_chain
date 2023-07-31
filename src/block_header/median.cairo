@@ -26,6 +26,7 @@ func compute_timestamps_median{range_check_ptr}(timestamp_array: felt*) -> felt 
 func verify_timestamps_median{range_check_ptr}(timestamp_array: felt*, median) {
     // To verify the hint iterate through the array and ensure that
     // num_elems_eq_median > abs( num_elems_lt_median - num_elems_gt_median )
+    // (Credits to Jeremy Rubin for coming up with this algorithm)
     tempvar signs_diff = 0;
     tempvar n_median_occurences = 0;
     tempvar timestamp_ptr = timestamp_array;
