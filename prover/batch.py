@@ -33,6 +33,7 @@ INITIAL_STATE_FILE = "prover/state_0.json"
 
 COMPILED_PROGRAM = f"{args.output_dir}/prove_batch_compiled.json"
 output_dir = f"{args.output_dir}/batch_proofs/batch_{BATCH_NUMBER}"
+os.system(f"mkdir -p {output_dir}")
 input_file = f"{output_dir}/hint_inputs.json"
 output_file = f"{output_dir}/outputs.json"
 
