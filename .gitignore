@@ -2,3 +2,4 @@
 __pycache__
 prover/build
 prover/cairo-lang
+.protostar_cache

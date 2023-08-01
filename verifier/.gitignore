@@ -1,4 +1,3 @@
-/target
+target
 node_modules
-pkg
 .DS_Store
