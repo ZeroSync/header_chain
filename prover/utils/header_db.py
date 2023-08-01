@@ -1,5 +1,5 @@
 import os
-FILENAME = "tmp/headers.bin"
+FILENAME = "prover/build/headers.bin"
 HEADER_SIZE = 80
 if not os.path.isfile(FILENAME):
     print("Downloading header database...")

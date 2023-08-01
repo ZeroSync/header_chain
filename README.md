@@ -3,7 +3,7 @@ A STARK proof of Bitcoin's header chain
 
 
 ## Run Tests
-```
+```sh
 make test
 ```
 
