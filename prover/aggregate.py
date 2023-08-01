@@ -34,7 +34,7 @@ NEXT_PARSED_PROOF = f"{args.next_proof}/parsed_proof.json"
 
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
 SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
-PROOF_PARAMETERS = "--num-queries=24 --lde-blowup-factor=8 --proof-of-work-bits=30 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
+PROOF_PARAMETERS = "--num-queries=26 --lde-blowup-factor=8 --proof-of-work-bits=20 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 AGGREGATE_PROGRAM = f"{args.output_dir}/aggregate_proofs_compiled.json"
 
 with open(PREV_PARSED_PROOF) as file:

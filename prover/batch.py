@@ -25,7 +25,7 @@ args = parser.parse_args()
 
 SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
-PROOF_PARAMETERS = "--num-queries=24 --lde-blowup-factor=8 --proof-of-work-bits=30 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
+PROOF_PARAMETERS = "--num-queries=26 --lde-blowup-factor=8 --proof-of-work-bits=20 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 
 BATCH_SIZE = args.batch_size
 BATCH_NUMBER = args.batch_number
