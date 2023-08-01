@@ -46,45 +46,22 @@ func main{
         segments.write_arg(ids.next_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.next_proof.address_ + int(x)) for x in program_input["next_proof"]])
     %}
 
-<<<<<<< HEAD
-    /// 1. Read and verify the previous proof
-    // Read the previous proof from a hint
-    %{
-        # TODO: implement me
-    %}
-    
-    // Verify the previous proof
-    // TODO: implement me
-    let prev_mem_values = alloc();
-    let prev_program_hash = 0;
-=======
-    // / 1. Read and verify the previous proof
+    // / 1. Verify the previous proof
     let (prev_program_hash, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
     assert prev_output_len = OUTPUT_COUNT;
->>>>>>> roundtrip
 
     // Ensure the program is either the batch program or the aggregate program
     if (prev_program_hash != BATCH_PROGRAM_HASH) {
         assert prev_program_hash = AGGREGATE_PROGRAM_HASH;
         assert prev_mem_values[PROGRAM_HASH_INDEX] = AGGREGATE_PROGRAM_HASH;
+    } else {
+        %{ print("This is a batch proof") %}
+        assert next_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
     }
 
-<<<<<<< HEAD
-
-    /// 2. Read and verify the next proof
-    // Read the next proof from a hint
-    %{
-        # TODO: implement me
-    %}
-    
-    // Verify the next proof
-    let next_mem_values = alloc();
-    let next_program_hash = 0;
-=======
     // / 2. Verify the next program
     let (next_program_hash, next_mem_values, next_output_len) = verify_cairo_proof(next_proof);
     assert next_output_len = OUTPUT_COUNT;
->>>>>>> roundtrip
 
     // Ensure the program is either the batch program or the aggregate program
     if (next_program_hash != BATCH_PROGRAM_HASH) {
