@@ -37,6 +37,7 @@ PREV_PARSED_PROOF = f"{args.prev_proof}/parsed_proof.json"
 
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
 SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
+PROOF_PARAMETERS = "--num-queries=24 --lde-blowup-factor=8 --proof-of-work-bits=30 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 INCREMENT_PROGRAM = f"{args.output_dir}/increment_batch_compiled.json"
 
 BATCH_SIZE = args.batch_size
@@ -76,13 +77,16 @@ cmd = f"cairo-run \
 cairo_output = os.popen(cmd).read()
 print(cairo_output)
 
-# Run Sandstorm prover
-cmd = f'{SANDSTORM} --program {INCREMENT_PROGRAM} \
-       --air-public-input {output_dir}/air-public-input.json \
-       prove --air-private-input {output_dir}/air-private-input.json \
-       --output {output_dir}/incremented_proof.bin'
-subprocess.call(cmd, shell=True)
+# Run sandstorm prover
+cmd = f"{SANDSTORM} --program {INCREMENT_PROGRAM} \
+        --air-public-input {output_dir}/air-public-input.json \
+        prove --air-private-input {output_dir}/air-private-input.json \
+        --output {output_dir}/increment_proof.bin {PROOF_PARAMETERS}"
+if rc := subprocess.call(cmd, shell=True) != 0:
+    print(f"[ERROR] {cmd} failed with return code {rc}")
+    exit(-1)
 
 # Parse proof into cairo verifier readable format
-cmd = f"{SANDSTORM_PARSER}  {output_dir}/incremented_proof.bin {output_dir}/air-public-input.json {INCREMENT_PROGRAM} {output_dir}/parsed_proof.json proof"
-subprocess.call(cmd, shell=True)
+cmd = f"{SANDSTORM_PARSER}  {output_dir}/increment_proof.bin {output_dir}/air-public-input.json {INCREMENT_PROGRAM} {output_dir}/parsed_proof.json proof"
+if rc := subprocess.call(cmd, shell=True) != 0:
+    print(f"[ERROR] {cmd} failed with return code {rc}")
