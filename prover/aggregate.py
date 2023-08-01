@@ -8,18 +8,26 @@ parser = argparse.ArgumentParser(description='Generate a aggregate proof')
 parser.add_argument(
     '--output_dir',
     type=str,
-    help="Output directory, e.g., aggregate_[START]-[END]")
+    help="Output directory.")
 parser.add_argument(
     '--prev_proof',
     type=str,
-    help="Previous proof folder for this aggregation")
+    help="Previous proof folder for this aggregation.")
 parser.add_argument(
     '--next_proof',
     type=str,
-    help="Next proof folder for this aggregation")
+    help="Next proof folder for this aggregation.")
+parser.add_argument(
+    '--start_height',
+    type=str,
+    help="Starting block_height of the previous proof that is aggregated. Only used for naming the output directory.."
+)
+parser.add_argument(
+    '--end_height',
+    type=str,
+    help="End block_height of the next_proof that is aggregated. Only used for naming the output directory."
+)
 args = parser.parse_args()
-output_dir = args.output_dir
-os.system(f"mkdir -p {output_dir}")
 
 PREV_PARSED_PROOF = f"{args.prev_proof}/parsed_proof.json"
 NEXT_PARSED_PROOF = f"{args.next_proof}/parsed_proof.json"
@@ -27,13 +35,14 @@ NEXT_PARSED_PROOF = f"{args.next_proof}/parsed_proof.json"
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
 SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
 PROOF_PARAMETERS = "--num-queries=24 --lde-blowup-factor=8 --proof-of-work-bits=30 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
-AGGREGATE_PROGRAM = "tmp/aggregate_program_compiled.json"   # TODO CLI?
+AGGREGATE_PROGRAM = f"{args.output_dir}/aggregate_proofs_compiled.json"
 
 with open(PREV_PARSED_PROOF) as file:
     prev_proof_json = json.load(file)
 with open(NEXT_PARSED_PROOF) as file:
     next_proof_json = json.load(file)
 
+output_dir = f"{args.output_dir}/aggregate_{args.start_height}-{args.end_height}"
 os.system(f"mkdir -p {output_dir}")
 input_file = f"{output_dir}/hint_inputs.json"
 

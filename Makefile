@@ -1,3 +1,5 @@
+.DELETE_ON_ERROR: $(BUILD_DIR)/%_compiled.json
+
 test:
 	protostar test --cairo-path=./program/src target program
 
@@ -12,27 +14,27 @@ BUILD_DIR=prover/build
 $(BUILD_DIR):
 	mkdir -p $@
 
+CAIRO_DEPENDENCIES=$(shell find program/src -type f -iname "*.cairo" -not -iname "*aggregate_proofs.cairo" -not -iname "*increment_batch.cairo" -not -iname "*prove_batch.cairo")
+# Compilation rule for all three cairo programs
+$(BUILD_DIR)/%_compiled.json: program/src/%.cairo $(CAIRO_DEPENDENCIES) $(BUILD_DIR)
+	cairo-compile $< --cairo_path program/src --output $@ --proof_mode
+
+
 BATCH_SIZE=8
 BATCH_NUMBER=0
-
-batch_proof: $(BUILD_DIR)
-	# Compile batch program
-	cairo-compile program/src/prove_batch.cairo --cairo_path program/src --output $(BUILD_DIR)/prove_batch_compiled.json --proof_mode
+batch_proof: $(BUILD_DIR)/prove_batch_compiled.json
 	# Prove batch program
 	PYTHONPATH=$$PYTHONPATH:. python prover/batch.py --batch_number=$(BATCH_NUMBER) --batch_size=$(BATCH_SIZE) --output_dir=$(BUILD_DIR)
 
-AGGREGATE_RANGE=0-7
+AGGREGATE_START=0
+AGGREGATE_END=1
 PREV_PROOF=batch_proofs/batch_0
 NEXT_PROOF=batch_proofs/batch_1
-aggregate_proof: $(BUILD_DIR)
-	# Compile aggregate program
-	cairo-compile program/src/aggregate_proofs.cairo --cairo_path=./program/src --output=$(BUILD_DIR)/aggregate_program_compiled.json --proof_mode
+aggregate_proof: $(BUILD_DIR)/aggregate_proofs_compiled.json
 	# Prove aggregate program
-	PYTHONPATH=$$PYTHONPATH:. python prover/aggregate.py --output_dir $(BUILD_DIR)/aggregate_$(AGGREGATE_RANGE) --prev_proof $(BUILD_DIR)/$(PREV_PROOF) --next_proof $(BUILD_DIR)/$(NEXT_PROOF)
+	PYTHONPATH=$$PYTHONPATH:. python prover/aggregate.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/$(PREV_PROOF) --next_proof=$(BUILD_DIR)/$(NEXT_PROOF) --start_height=$(AGGREGATE_START) --end_height=$(AGGREGATE_END)
 
 
-increment_proof: $(BUILD_DIR)
-	# Compile increment program
-	cairo-compile program/src/increment_batch.cairo --cairo_path program/src --output $(BUILD_DIR)/increment_batch_compiled.json --proof_mode
+increment_proof: $(BUILD_DIR)/increment_batch_compiled.json
 	# Prove increment program
 	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir $(BUILD_DIR)/increment_0-11 --prev_proof $(BUILD_DIR)/aggregate_0-7 --batch_size=4
