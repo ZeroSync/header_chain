@@ -26,10 +26,11 @@ from utils.chain_state_utils import (
     outputs,
     CHAIN_STATE_SIZE,
     OUTPUT_COUNT,
-    PROGRAM_HASH_INDEX
+    PROGRAM_HASH_INDEX,
 )
- 
+
 const AGGREGATE_PROGRAM_HASH = 0x92559bd41c8951b211c4cdfcb85540c2fd29ea60d255309658b933d4fbe213;
+const BATCH_PROGRAM_HASH = 0x142fb08780f3e461a675dd91fab367f9ce30b4b0321adfa9eac2040a0c806d5;
 
 func main{
     output_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
@@ -40,7 +41,7 @@ func main{
     // initialize sha256_ptr
     let sha256_ptr: felt* = alloc();
     let sha256_ptr_start = sha256_ptr;
-    
+
     // / 0. Read the aggregate program hash from a hint
     // TODO: implement me
     local INCREMENT_PROGRAM_HASH;
@@ -61,26 +62,23 @@ func main{
 
     // Read the previous state from the program input
     local batch_size: felt;
-    %{
-        ids.batch_size = program_input["batch_size"]
-    %}
-
+    %{ ids.batch_size = program_input["batch_size"] %}
 
     local program_hash: felt;
     let (best_block_hash) = alloc();
     let (prev_timestamps) = alloc();
-    let (mmr_roots)       = alloc();
+    let (mmr_roots) = alloc();
 
     memcpy(best_block_hash, &prev_mem_values[outputs.BEST_BLOCK_HASH], HASH_FELT_SIZE);
     memcpy(prev_timestamps, &prev_mem_values[outputs.TIMESTAMPS], TIMESTAMP_COUNT);
     memcpy(mmr_roots, &prev_mem_values[outputs.MMR_ROOTS], MMR_ROOTS_LEN);
 
-//      [1..8]      best_block_hash
-//      [9]         total_work
-//      [10]        current_target
-//      [11..21]    timestamps
-//      [22]        epoch_start_time
-//      [23..49]    mmr_roots 
+    // [1..8]      best_block_hash
+    //      [9]         total_work
+    //      [10]        current_target
+    //      [11..21]    timestamps
+    //      [22]        epoch_start_time
+    //      [23..49]    mmr_roots
 
     // The ChainState of the previous state
     let prev_chain_state = ChainState(
@@ -89,13 +87,15 @@ func main{
         best_block_hash,
         prev_mem_values[outputs.CURRENT_TARGET],
         prev_mem_values[outputs.EPOCH_START_TIME],
-        prev_timestamps
+        prev_timestamps,
     );
 
-    // Ensure the program is either the aggregate program or the increment program
+    // Ensure the program is either the aggregate/batch program or the increment program
     if (prev_program_hash != AGGREGATE_PROGRAM_HASH) {
-        assert prev_program_hash = INCREMENT_PROGRAM_HASH;
-        assert prev_mem_values[PROGRAM_HASH_INDEX] = INCREMENT_PROGRAM_HASH;
+        if (prev_program_hash != BATCH_PROGRAM_HASH) {
+            assert prev_program_hash = INCREMENT_PROGRAM_HASH;
+            assert prev_mem_values[PROGRAM_HASH_INDEX] = INCREMENT_PROGRAM_HASH;
+        }
     }
 
     // Output the previous state
@@ -105,9 +105,7 @@ func main{
     // Validate all blocks in this batch and update the state
     let (block_hashes) = alloc();
     with sha256_ptr {
-        let next_chain_state = validate_block_headers(
-            prev_chain_state, batch_size, block_hashes
-        );
+        let next_chain_state = validate_block_headers(prev_chain_state, batch_size, block_hashes);
     }
     finalize_sha256(sha256_ptr_start, sha256_ptr);
     mmr_append_leaves{hash_ptr=pedersen_ptr, mmr_roots=mmr_roots}(block_hashes, batch_size);

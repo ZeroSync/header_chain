@@ -26,15 +26,15 @@ batch_proof: $(BUILD_DIR)/prove_batch_compiled.json
 	# Prove batch program
 	PYTHONPATH=$$PYTHONPATH:. python prover/batch.py --batch_number=$(BATCH_NUMBER) --batch_size=$(BATCH_SIZE) --output_dir=$(BUILD_DIR)
 
-AGGREGATE_START=0
-AGGREGATE_END=1
+START=0
+END=$(START) + $(BATCH_SIZE) - 1
 PREV_PROOF=batch_proofs/batch_0
 NEXT_PROOF=batch_proofs/batch_1
 aggregate_proof: $(BUILD_DIR)/aggregate_proofs_compiled.json
 	# Prove aggregate program
-	PYTHONPATH=$$PYTHONPATH:. python prover/aggregate.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/$(PREV_PROOF) --next_proof=$(BUILD_DIR)/$(NEXT_PROOF) --start_height=$(AGGREGATE_START) --end_height=$(AGGREGATE_END)
+	PYTHONPATH=$$PYTHONPATH:. python prover/aggregate.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/$(PREV_PROOF) --next_proof=$(BUILD_DIR)/$(NEXT_PROOF) --start_height=$(START) --end_height=$(END)
 
-
+PREV_PROOF=increment_0-$(BATCH_SIZE)
 increment_proof: $(BUILD_DIR)/increment_batch_compiled.json
 	# Prove increment program
-	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir $(BUILD_DIR)/increment_0-11 --prev_proof $(BUILD_DIR)/aggregate_0-7 --batch_size=4
+	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/increment_0 --batch_size=$(BATCH_SIZE) --start_height=$(START) --end-height=$(END)

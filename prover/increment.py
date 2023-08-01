@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description='Generate a increment proof')
 parser.add_argument(
     '--output_dir',
     type=str,
-    help="Output directory, e.g., increment_[START]-[END]")
+    help="Output directory.")
 parser.add_argument(
     '--prev_proof',
     type=str,
@@ -18,16 +18,26 @@ parser.add_argument(
     type=int,
     default=1,
     help="Batch size to increment")
+parser.add_argument(
+    '--start_height',
+    type=str,
+    help="Starting block_height of the previous proof that is aggregated. Only used for naming the output directory.."
+)
+parser.add_argument(
+    '--end_height',
+    type=str,
+    help="End block_height of the next_proof that is aggregated. Only used for naming the output directory."
+)
 args = parser.parse_args()
 
-output_dir = args.output_dir
+output_dir = f"{args.output_dir}/increment_{args.start_height}-{args.end_height}"
 os.system(f"mkdir -p {output_dir}")
 
 PREV_PARSED_PROOF = f"{args.prev_proof}/parsed_proof.json"
 
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
 SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
-INCREMENT_PROGRAM = "tmp/increment_batch_compiled.json"   # TODO CLI?
+INCREMENT_PROGRAM = f"{args.output_dir}/increment_batch_compiled.json"
 
 BATCH_SIZE = args.batch_size
 
