@@ -37,4 +37,4 @@ aggregate_proof: $(BUILD_DIR)/aggregate_proofs_compiled.json
 PREV_PROOF=increment_0-$(BATCH_SIZE)
 increment_proof: $(BUILD_DIR)/increment_batch_compiled.json
 	# Prove increment program
-	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/increment_0 --batch_size=$(BATCH_SIZE) --start_height=$(START) --end-height=$(END)
+	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/$(PREV_PROOF) --batch_size=$(BATCH_SIZE) --start_height=$(START) --end_height=$(END)
