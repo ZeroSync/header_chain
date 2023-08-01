@@ -3,14 +3,11 @@ test:
 	protostar test --cairo-path=./program/src
 
 setup:
-# Patch and include the verifier in your cairo-lang package
-	cd prover
-	git clone git@github.com:starkware-libs/cairo-lang.git
-	cd cairo-lang
-# Apply the path in the cairo-lang repo
-	git am ../0001-patch-verifier.patch
-# Switch out ~/cairo_venv/ with your cairo venv
-	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/
+	cd prover; \
+	git clone git@github.com:starkware-libs/cairo-lang.git; \ 
+	cd cairo-lang; \
+	git am ../0001-patch-verifier.patch; \
+	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/ 
 
 
 batch_proof:

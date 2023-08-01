@@ -1,3 +1,4 @@
 .DS_Store
-prover/build
 __pycache__
+prover/build
+prover/cairo-lang

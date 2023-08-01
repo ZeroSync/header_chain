@@ -1,3 +1,7 @@
+# Header Chain Verifier
+
+This applies the Sandstorm verifier to the header chain proof and compiles it to WebAssembly.
+
 ```
 npm install
 
