@@ -27,13 +27,12 @@ SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
 SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
 PROOF_PARAMETERS = "--num-queries=24 --lde-blowup-factor=8 --proof-of-work-bits=30 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 
-COMPILED_PROGRAM = "tmp/prove_batch_compiled.json"
 BATCH_SIZE = args.batch_size
 BATCH_NUMBER = args.batch_number
-INITIAL_STATE_FILE = "recursion_setup/state_0.json"
+INITIAL_STATE_FILE = "prover/state_0.json"
 
+COMPILED_PROGRAM = f"{args.output_dir}/prove_batch_compiled.json"
 output_dir = f"{args.output_dir}/batch_proofs/batch_{BATCH_NUMBER}"
-os.system(f"mkdir -p {output_dir}")
 input_file = f"{output_dir}/hint_inputs.json"
 output_file = f"{output_dir}/outputs.json"
 
@@ -52,10 +51,6 @@ with open(input_file, 'w') as input_fp:
     prev_output['batch_size'] = BATCH_SIZE
     json.dump(prev_output, input_fp)
 
-# TODO Remove this and compile in the super script
-cmd = f"cairo-compile src/prove_batch.cairo --cairo_path src --output {COMPILED_PROGRAM} --proof_mode"
-subprocess.call(cmd, shell=True)
-
 # Run Cairo runner
 print("Starting Cairo runner.")
 cmd = f"cairo-run \
@@ -70,6 +65,7 @@ cmd = f"cairo-run \
            --proof_mode \
            --print_info \
            --print_output"
+print(cmd)
 cairo_output = os.popen(cmd).read()
 
 print("Parsing Cairo output")
