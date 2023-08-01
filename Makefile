@@ -1,6 +1,6 @@
 
 test:
-	protostar test --cairo-path=./program/src
+	protostar test --cairo-path=./program/src target program
 
 setup:
 	cd prover; \
