@@ -28,9 +28,9 @@ func byteswap32{bitwise_ptr: BitwiseBuiltin*}(uint32) -> felt {
 
 // The base for byte-wise shifts via multiplication and integer division
 const BYTE = 2 ** 8;
-// const UINT32 = 2 ** 32;
+const UINT32 = 2 ** 32;
 
 // The byte sizes of Uint8, Uint16, Uint32, and Uint64
-// const UINT8_SIZE = 1;
+const UINT8_SIZE = 1;
 const UINT32_SIZE = 4;
-// const UINT256_SIZE = 32;
+const UINT256_SIZE = 32;

@@ -56,7 +56,7 @@ func main{
         assert prev_mem_values[PROGRAM_HASH_INDEX] = AGGREGATE_PROGRAM_HASH;
     } else {
         %{ print("This is a batch proof") %}
-        assert next_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
+        assert prev_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
     }
 
     // / 2. Verify the next program

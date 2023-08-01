@@ -162,14 +162,6 @@ func validate_and_apply_block_header{
     range_check_ptr, bitwise_ptr: BitwiseBuiltin*, sha256_ptr: felt*, chain_state: ChainState
 }(block_header: BlockHeader*) {
     alloc_locals;
-    // TODO:
-    // - validate_prev_block_hash
-    // - validate_proof_of_work
-    // - validate_target
-    // - validate_timestamp
-    // - next_prev_timestamps
-    // - compute_total_work
-    // - adjust_difficulty
     let (__fp__, _) = get_fp_and_pc();
 
     // Validate that a block header correctly extends the current chain

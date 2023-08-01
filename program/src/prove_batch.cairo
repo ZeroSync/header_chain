@@ -46,7 +46,7 @@ func main{
     %}
 
     // The ChainState of the previous state
-    let prev_chain_state = ChainState(
+    let chain_state = ChainState(
         block_height, 
         total_work, 
         best_block_hash, 
@@ -56,22 +56,20 @@ func main{
     );
 
     // Output the previous state
-    serialize_chain_state(prev_chain_state);
+    serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
 
     // Validate all blocks in this batch and update the state
     let (block_hashes) = alloc();
-    with sha256_ptr {
-        let next_chain_state = validate_block_headers(
-            prev_chain_state, batch_size, block_hashes
-        );
+    with sha256_ptr, chain_state {
+        validate_block_headers(batch_size, block_hashes);
     }
     finalize_sha256(sha256_ptr_start, sha256_ptr);
 
     mmr_append_leaves{hash_ptr=pedersen_ptr, mmr_roots=mmr_roots}(block_hashes, batch_size);
 
     // Output the next state
-    serialize_chain_state(next_chain_state);
+    serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
     // Padding zero such that NUM_OUTPUTS of the aggregate program and batch program are equal
     serialize_word(0);

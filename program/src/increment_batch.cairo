@@ -7,11 +7,7 @@ from starkware.cairo.common.memcpy import memcpy
 
 from crypto.hash_utils import HASH_FELT_SIZE
 from utils.python_utils import setup_python_defs
-from block_header.block_header import (
-    ChainState,
-    validate_and_apply_block_header,
-    read_block_header_validation_context,
-)
+from block_header.block_header import ChainState, validate_and_apply_block_header
 from block_header.median import TIMESTAMP_COUNT
 from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import verify_cairo_proof
 
@@ -81,7 +77,7 @@ func main{
     //      [23..49]    mmr_roots
 
     // The ChainState of the previous state
-    let prev_chain_state = ChainState(
+    let chain_state = ChainState(
         prev_mem_values[outputs.BLOCK_HEIGHT],
         prev_mem_values[outputs.TOTAL_WORK],
         best_block_hash,
@@ -99,19 +95,19 @@ func main{
     }
 
     // Output the previous state
-    serialize_chain_state(prev_chain_state);
+    serialize_chain_state(chain_state);
     serialize_array(prev_mem_values + outputs.MMR_ROOTS, MMR_ROOTS_LEN);
 
     // Validate all blocks in this batch and update the state
     let (block_hashes) = alloc();
-    with sha256_ptr {
-        let next_chain_state = validate_block_headers(prev_chain_state, batch_size, block_hashes);
+    with sha256_ptr, chain_state {
+        validate_block_headers(batch_size, block_hashes);
     }
     finalize_sha256(sha256_ptr_start, sha256_ptr);
     mmr_append_leaves{hash_ptr=pedersen_ptr, mmr_roots=mmr_roots}(block_hashes, batch_size);
 
     // Output the next state
-    serialize_chain_state(next_chain_state);
+    serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
     // Padding zero such that NUM_OUTPUTS of the increment program and batch program are equal
     serialize_word(INCREMENT_PROGRAM_HASH);

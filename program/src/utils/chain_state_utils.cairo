@@ -3,8 +3,8 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
 from block_header.block_header import (
     ChainState,
+    fetch_block_header,
     validate_and_apply_block_header,
-    read_block_header_validation_context
 )
 
 from block_header.median import TIMESTAMP_COUNT
@@ -81,23 +81,23 @@ func block_hash_to_felt(block_hash: felt*) -> felt {
 // The block header pedersen hashes are used to create a Merkle tree over all block headers of the batch
 //
 func validate_block_headers{
-    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, sha256_ptr: felt*
-}(prev_chain_state: ChainState, n, block_hashes: felt*) -> ChainState {
+    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, sha256_ptr: felt*, chain_state: ChainState
+}(n, block_hashes: felt*) {
     if (n == 0) {
-        return prev_chain_state;
+        return ();
     }
     alloc_locals;
 
-    with sha256_ptr {
+    with sha256_ptr, chain_state {
         // Get the next block header
-        let context = read_block_header_validation_context(prev_chain_state);
+        let block_header = fetch_block_header(chain_state.block_height + 1);
 
         // Validate the block header and get the new state
-        let next_chain_state = validate_and_apply_block_header(context);
+        validate_and_apply_block_header(block_header);
     }
 
-    let block_hash = block_hash_to_felt(context.block_hash);
+    let block_hash = block_hash_to_felt(chain_state.best_block_hash);
     assert [block_hashes] = block_hash;
 
-    return validate_block_headers(next_chain_state, n - 1, block_hashes + 1);
+    return validate_block_headers(n - 1, block_hashes + 1);
 }
