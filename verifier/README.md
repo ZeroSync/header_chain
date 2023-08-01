@@ -14,6 +14,6 @@ npm run build
 
 ## Run Development Server 
 ```
-cd pkg
+cd build
 python3 -m http.server
 ```
