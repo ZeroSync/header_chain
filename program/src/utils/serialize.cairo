@@ -6,10 +6,7 @@
 // serializing any block data.
 //
 
-from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.math import assert_not_zero, assert_le, assert_le_felt
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
-from starkware.cairo.common.uint256 import Uint256
 
 // Swap the endianness of an uint32
 func byteswap32{bitwise_ptr: BitwiseBuiltin*}(uint32) -> felt {
@@ -30,7 +27,5 @@ func byteswap32{bitwise_ptr: BitwiseBuiltin*}(uint32) -> felt {
 const BYTE = 2 ** 8;
 const UINT32 = 2 ** 32;
 
-// The byte sizes of Uint8, Uint16, Uint32, and Uint64
-const UINT8_SIZE = 1;
+// The byte size Uint32
 const UINT32_SIZE = 4;
-const UINT256_SIZE = 32;

@@ -222,12 +222,12 @@ func validate_proof_of_work{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
     let hash_word_4_endian = byteswap32([next_block_hash + 4]);
     let hash_word_5_endian = byteswap32([next_block_hash + 5]);
     let hash_word_6_endian = byteswap32([next_block_hash + 6]);
-    let hash_word_7_endian = byteswap32([next_block_hash + 7]);
+    let hash_word_7 = [next_block_hash + 7];
 
     // Validate that the hash's most significant uint32 chunk is zero
     // This guarantees that the hash fits into a felt.
-    with_attr error_message("Hash's most significant uint32 chunk ({hash_word_7_endian}) is not zero.") {
-        assert 0 = hash_word_7_endian;
+    with_attr error_message("Expected the block hash's most significant uint32 chunk ({hash_word_7}) to be zero") {
+        assert 0 = hash_word_7;
     }
 
     // Sum up the other 7 uint32 chunks of the hash into 1 felt
