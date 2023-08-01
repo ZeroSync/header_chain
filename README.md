@@ -19,7 +19,7 @@ make setup
 This command proves a batch of headers
 
 ```sh
-make BATCH_SIZE=63 START=0 END=62 PREV_PROOF=batch_proofs/batch_0
+make BATCH_SIZE=63 BATCH_NUMBER=0 batch_proof
 ```
 
 ### Aggregate Proof

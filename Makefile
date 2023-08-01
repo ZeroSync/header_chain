@@ -4,10 +4,10 @@ test:
 	protostar test --cairo-path=./program/src target program
 
 setup:
-	cd prover; \
-	git clone git@github.com:starkware-libs/cairo-lang.git; \ 
-	cd cairo-lang; \
-	git am ../0001-patch-verifier.patch; \
+	cd prover && \
+	git clone git@github.com:starkware-libs/cairo-lang.git; \
+	cd cairo-lang && \
+	git am ../0001-patch-verifier.patch && \
 	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/ 
 
 BUILD_DIR=prover/build
