@@ -40,4 +40,8 @@ increment_proof: $(BUILD_DIR)/increment_batch_compiled.json
 	PYTHONPATH=$$PYTHONPATH:. python prover/increment.py --output_dir=$(BUILD_DIR) --prev_proof=$(BUILD_DIR)/$(PREV_PROOF) --batch_size=$(BATCH_SIZE) --start_height=$(START) --end_height=$(END)
 
 batch_program_hash: $(BUILD_DIR)/prove_batch_compiled.json
-	python prover/utils/cairo_hash.py $<
+	@echo "Calculating program hash. This may take a few seconds..."
+	@PROGRAM_HASH=$$(python prover/utils/cairo_hash.py $<) && \
+	sed -i -E "s/const BATCH_PROGRAM_HASH = 0x[0-9a-fA-F]+;/const BATCH_PROGRAM_HASH = $$PROGRAM_HASH;/" program/src/increment_batch.cairo; \
+	sed -i -E "s/const BATCH_PROGRAM_HASH = 0x[0-9a-fA-F]+;/const BATCH_PROGRAM_HASH = $$PROGRAM_HASH;/" program/src/aggregate_proofs.cairo; \
+	echo "Updated increment_batch.cairo and aggregate_proofs.cairo with new batch_program_hash $$PROGRAM_HASH."
