@@ -4,7 +4,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.serialize import serialize_word
 
-from crypto.hash_utils import HASH_FELT_SIZE
+from utils.utils import HASH_FELT_SIZE
 from block_header.block_header import ChainState
 from block_header.median import TIMESTAMP_COUNT
 

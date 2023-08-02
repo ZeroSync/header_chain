@@ -6,20 +6,21 @@ from starkware.cairo.common.hash import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.serialize import serialize_word
 
-from block_header.block_header import ChainState
-from crypto.hash_utils import assert_hashes_equal
-from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import (
-    verify_cairo_proof,
-    extract_range,
-)
 from starkware.cairo.stark_verifier.air.layouts.recursive.public_verify import segments
 from starkware.cairo.stark_verifier.core.stark import StarkProof
 from starkware.cairo.stark_verifier.air.public_input import PublicInput, SegmentInfo
 from starkware.cairo.stark_verifier.air.public_memory import AddrValue
 
+from block_header.block_header import ChainState
+from utils.utils import assert_hashes_equal
+from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import (
+    verify_cairo_proof,
+    extract_range,
+)
+
 from crypto.merkle_mountain_range import MMR_ROOTS_LEN
 from block_header.median import TIMESTAMP_COUNT
-from crypto.hash_utils import HASH_FELT_SIZE
+from utils.utils import HASH_FELT_SIZE
 from utils.chain_state_utils import (
     serialize_array,
     CHAIN_STATE_SIZE,

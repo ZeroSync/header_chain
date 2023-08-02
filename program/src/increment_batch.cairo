@@ -5,13 +5,13 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.serialize import serialize_word
 from starkware.cairo.common.memcpy import memcpy
 
-from crypto.hash_utils import HASH_FELT_SIZE
+from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import verify_cairo_proof
+from starkware.cairo.stark_verifier.core.stark import StarkProof
+
+from utils.utils import HASH_FELT_SIZE
 from utils.python_utils import setup_python_defs
 from block_header.block_header import ChainState, validate_and_apply_block_header
 from block_header.median import TIMESTAMP_COUNT
-from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import verify_cairo_proof
-
-from starkware.cairo.stark_verifier.core.stark import StarkProof
 
 from crypto.sha256 import finalize_sha256
 from crypto.merkle_mountain_range import mmr_append_leaves, MMR_ROOTS_LEN
@@ -69,7 +69,7 @@ func main{
     memcpy(prev_timestamps, &prev_mem_values[outputs.TIMESTAMPS], TIMESTAMP_COUNT);
     memcpy(mmr_roots, &prev_mem_values[outputs.MMR_ROOTS], MMR_ROOTS_LEN);
 
-    // [1..8]      best_block_hash
+    //      [1..8]      best_block_hash
     //      [9]         total_work
     //      [10]        current_target
     //      [11..21]    timestamps

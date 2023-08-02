@@ -22,9 +22,8 @@ from starkware.cairo.common.uint256 import (
     uint256_le,
 )
 from starkware.cairo.common.registers import get_fp_and_pc
-from utils.serialize import byteswap32, UINT32_SIZE, BYTE
-from crypto.hash256 import hash256
-from crypto.hash_utils import assert_hashes_equal
+from utils.utils import byteswap32, UINT32_SIZE, BYTE, assert_hashes_equal, felt_to_uint256
+from crypto.sha256 import hash256
 from utils.pow2 import pow2
 from block_header.median import compute_timestamps_median, TIMESTAMP_COUNT
 // The size of a block header is 80 bytes
@@ -417,12 +416,4 @@ func target_to_bits{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(target) -> fe
         }
         return bits;
     }
-}
-
-// Convert a felt to a Uint256
-//
-func felt_to_uint256{range_check_ptr}(value) -> Uint256 {
-    let (high, low) = split_felt(value);
-    let value256 = Uint256(low, high);
-    return value256;
 }

@@ -8,8 +8,7 @@ from block_header.block_header import (
 )
 
 from block_header.median import TIMESTAMP_COUNT
-from utils.serialize import UINT32
-from crypto.hash_utils import HASH_FELT_SIZE
+from utils.utils import HASH_FELT_SIZE, UINT32
 
 
 const CHAIN_STATE_SIZE = 50;

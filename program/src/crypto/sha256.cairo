@@ -7,7 +7,7 @@ from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.memset import memset
 from utils.pow2 import pow2
 
-from crypto.hash_utils import HASH_FELT_SIZE
+from utils.utils import HASH_FELT_SIZE, HASH_SIZE
 
 from crypto.sha256_packed import (
     BLOCK_SIZE,
@@ -388,4 +388,15 @@ func finalize_sha256{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
     let (local q, r) = unsigned_div_rem(n + BLOCK_SIZE - 1, BLOCK_SIZE);
     _finalize_sha256_inner(sha256_ptr_start, n=q, round_constants=round_constants);
     return ();
+}
+
+
+// Computes double sha256
+//
+func hash256{range_check_ptr, sha256_ptr: felt*}(
+    input: felt*, byte_size: felt
+) -> felt* {
+    let hash_first_round = compute_sha256(input, byte_size);
+    let hash = compute_sha256(hash_first_round, HASH_SIZE);
+    return hash;
 }

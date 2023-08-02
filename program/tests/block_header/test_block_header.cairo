@@ -10,9 +10,8 @@ from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
 from starkware.cairo.common.registers import get_fp_and_pc
 from utils.python_utils import setup_python_defs
-from utils.serialize import byteswap32
-from crypto.hash_utils import assert_hashes_equal
-from crypto.hash256 import hash256
+from utils.utils import byteswap32, assert_hashes_equal
+from crypto.sha256 import hash256
 from block_header.block_header import (
     bits_to_target,
     BLOCK_HEADER_SIZE,
