@@ -6,7 +6,7 @@ const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 module.exports = {
     entry: './index.js',
     output: {
-        path: path.resolve(__dirname, 'pkg'),
+        path: path.resolve(__dirname, 'build'),
         filename: 'stark_verifier.js',
         library: "stark_verifier",
     },

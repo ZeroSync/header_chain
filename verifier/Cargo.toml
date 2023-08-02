@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-claims = { path = "../sandstorm-mirror/claims", package = "sandstorm-claims" }
-layouts = { path = "../sandstorm-mirror/layouts", package = "sandstorm-layouts" }
-binary = { path = "../sandstorm-mirror/binary", package = "sandstorm-binary" }
-ministark = { path = "../ministark-mirror", package = "ministark" }
+claims = { path = "../../sandstorm-mirror/claims", package = "sandstorm-claims" }
+layouts = { path = "../../sandstorm-mirror/layouts", package = "sandstorm-layouts" }
+binary = { path = "../../sandstorm-mirror/binary", package = "sandstorm-binary" }
+ministark = { path = "../../ministark-mirror", package = "ministark" }
 ark-ff = "0.4"
 ark-serialize = "0.4"
 serde_json = "1.0"
