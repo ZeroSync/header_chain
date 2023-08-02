@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 from utils.cairo_hash import fetch_compiled_program, compute_hash_chain
+from utils.common import SANDSTORM, SANDSTORM_PARSER, PROOF_PARAMETERS
 
 parser = argparse.ArgumentParser(description='Generate a increment proof')
 parser.add_argument(
