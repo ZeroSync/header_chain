@@ -26,7 +26,7 @@ from utils.chain_state_utils import (
 )
 
 const AGGREGATE_PROGRAM_HASH = 0x92559bd41c8951b211c4cdfcb85540c2fd29ea60d255309658b933d4fbe213;
-const BATCH_PROGRAM_HASH = 0x39fa32b361f9ad26278670703cb5ebf55482d6a296b5b1df34617e65c8e7957;
+const BATCH_PROGRAM_HASH = 0x1ecdc2d98b50566369e224c36257d955a0a9a9fd62df95951f5713ab7434268;
 
 func main{
     output_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
@@ -69,7 +69,7 @@ func main{
     memcpy(prev_timestamps, &prev_mem_values[outputs.TIMESTAMPS], TIMESTAMP_COUNT);
     memcpy(mmr_roots, &prev_mem_values[outputs.MMR_ROOTS], MMR_ROOTS_LEN);
 
-    //      [1..8]      best_block_hash
+    // [1..8]      best_block_hash
     //      [9]         total_work
     //      [10]        current_target
     //      [11..21]    timestamps
