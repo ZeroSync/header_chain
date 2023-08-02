@@ -4,6 +4,7 @@ import json
 import argparse
 
 from utils.cairo_parser import *
+from utils.common import SANDSTORM, SANDSTORM_PARSER, PROOF_PARAMETERS
 
 
 parser = argparse.ArgumentParser(description='Generate a chain proof')
@@ -22,10 +23,6 @@ parser.add_argument(
     default=1,
     help="Batch size to increment")
 args = parser.parse_args()
-
-SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
-SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
-PROOF_PARAMETERS = "--num-queries=26 --lde-blowup-factor=8 --proof-of-work-bits=20 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 
 BATCH_SIZE = args.batch_size
 BATCH_NUMBER = args.batch_number

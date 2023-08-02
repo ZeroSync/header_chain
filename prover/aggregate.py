@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 from utils.cairo_hash import fetch_compiled_program, compute_hash_chain
+from utils.common import SANDSTORM, SANDSTORM_PARSER, PROOF_PARAMETERS
 
 parser = argparse.ArgumentParser(description='Generate a aggregate proof')
 parser.add_argument(
@@ -32,9 +33,6 @@ args = parser.parse_args()
 PREV_PARSED_PROOF = f"{args.prev_proof}/parsed_proof.json"
 NEXT_PARSED_PROOF = f"{args.next_proof}/parsed_proof.json"
 
-SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
-SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
-PROOF_PARAMETERS = "--num-queries=26 --lde-blowup-factor=8 --proof-of-work-bits=20 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 AGGREGATE_PROGRAM = f"{args.output_dir}/aggregate_proofs_compiled.json"
 
 with open(PREV_PARSED_PROOF) as file:

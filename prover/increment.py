@@ -35,9 +35,6 @@ os.system(f"mkdir -p {output_dir}")
 
 PREV_PARSED_PROOF = f"{args.prev_proof}/parsed_proof.json"
 
-SANDSTORM_PARSER = "../cairo-verifier-utils/target/debug/sandstorm_parser"
-SANDSTORM = '\\time -f "%E %M" ../sandstorm-mirror/target/release/sandstorm'
-PROOF_PARAMETERS = "--num-queries=26 --lde-blowup-factor=8 --proof-of-work-bits=20 --fri-folding-factor=8 --fri-max-remainder-coeffs=16"
 INCREMENT_PROGRAM = f"{args.output_dir}/increment_batch_compiled.json"
 
 BATCH_SIZE = args.batch_size
