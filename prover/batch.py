@@ -5,6 +5,7 @@ import argparse
 
 from utils.cairo_parser import *
 from utils.common import SANDSTORM, SANDSTORM_PARSER, PROOF_PARAMETERS
+import cairo_vm_py
 
 
 parser = argparse.ArgumentParser(description='Generate a chain proof')
@@ -48,6 +49,12 @@ except BaseException as e:
 with open(input_file, 'w') as input_fp:
     prev_output['batch_size'] = BATCH_SIZE
     json.dump(prev_output, input_fp)
+
+# Run Cairo runner in rust
+with open(COMPILED_PROGRAM) as file:
+    runner = cairo_vm_py.CairoRunner(file.read(), "main", "all_cairo", True)
+    runner.cairo_run(True, "trace_rs.bin", "memory_rs.bin")
+exit()
 
 # Run Cairo runner
 print("Starting Cairo runner.")

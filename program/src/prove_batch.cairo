@@ -11,7 +11,12 @@ from block_header.median import TIMESTAMP_COUNT
 from utils.python_utils import setup_python_defs
 from crypto.hash256 import finalize_hash256_block_header
 from crypto.merkle_mountain_range import mmr_append_leaves, MMR_ROOTS_LEN
-from utils.chain_state_utils import validate_block_headers, serialize_array, serialize_chain_state, block_hash_to_felt
+from utils.chain_state_utils import (
+    validate_block_headers,
+    serialize_array,
+    serialize_chain_state,
+    block_hash_to_felt,
+)
 
 func main{
     output_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
@@ -35,6 +40,9 @@ func main{
     local batch_size: felt;
 
     %{
+        import json
+        with open("prover/build/batch_proofs/batch_0/hint_inputs.json") as hint_file:
+            program_input = json.load(hint_file)
         ids.block_height = program_input["block_height"] if program_input["block_height"] != -1 else PRIME - 1
         ids.total_work = program_input["total_work"]
         segments.write_arg(ids.best_block_hash, felts_from_hash( program_input["best_block_hash"]) )
@@ -47,12 +55,7 @@ func main{
 
     // The ChainState of the previous state
     let chain_state = ChainState(
-        block_height, 
-        total_work, 
-        best_block_hash, 
-        current_target, 
-        epoch_start_time, 
-        prev_timestamps
+        block_height, total_work, best_block_hash, current_target, epoch_start_time, prev_timestamps
     );
 
     // Output the previous state
