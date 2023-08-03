@@ -11,10 +11,9 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
 from starkware.cairo.common.registers import get_fp_and_pc
 from utils.python_utils import setup_python_defs
 from utils.utils import byteswap32, assert_hashes_equal
-from crypto.sha256 import hash256
+from crypto.hash256 import hash256_block_header
 from block_header.block_header import (
     bits_to_target,
-    BLOCK_HEADER_SIZE,
     fetch_block_header,
     validate_and_apply_block_header,
     ChainState,
@@ -110,8 +109,8 @@ func test_fetch_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
         prev_timestamps,
     );
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
 
     // Read a block header from the byte stream
     // This is our next chain tip
@@ -134,8 +133,8 @@ func test_fetch_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
             ], ids.block_hash_expected)
     %}
 
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
 
     with_attr error_message("Invalid block hash.") {
@@ -144,7 +143,7 @@ func test_fetch_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
 
     // Try to validate the block header.
     // This should succeed for valid block headers
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_and_apply_block_header(block_header);
     }
 
@@ -230,8 +229,8 @@ func test_adjust_current_target{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}()
         prev_timestamps,
     );
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
 
     // Read a block header from the byte stream
     // This is our next chain tip
@@ -255,8 +254,8 @@ func test_adjust_current_target{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}()
             ], ids.block_hash_expected)
     %}
 
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
     with_attr error_message("invalid block hash") {
         assert_hashes_equal(block_hash, block_hash_expected);
@@ -264,7 +263,7 @@ func test_adjust_current_target{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}()
 
     // Try to validate the block header.
     // This should succeed for valid block headers
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_and_apply_block_header(block_header);
     }
 
@@ -317,8 +316,8 @@ func test_adjust_current_target_first_change{range_check_ptr, bitwise_ptr: Bitwi
         prev_timestamps,
     );
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
 
     // Read a block header from the byte stream
     // This is our next chain tip
@@ -342,8 +341,8 @@ func test_adjust_current_target_first_change{range_check_ptr, bitwise_ptr: Bitwi
             ], ids.block_hash_expected)
     %}
 
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
 
     with_attr error_message("invalid block hash") {
@@ -352,7 +351,7 @@ func test_adjust_current_target_first_change{range_check_ptr, bitwise_ptr: Bitwi
 
     // Try to validate the block header.
     // This should succeed for valid block headers
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_and_apply_block_header(block_header);
     }
 
@@ -408,8 +407,8 @@ func test_adjust_current_target_first_epoch{range_check_ptr, bitwise_ptr: Bitwis
         prev_timestamps,
     );
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
 
     // Read a block header from the byte stream
     // This is our next chain tip
@@ -423,8 +422,8 @@ func test_adjust_current_target_first_epoch{range_check_ptr, bitwise_ptr: Bitwis
             ], ids.block_hash_expected)
     %}
 
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
 
     with_attr error_message("invalid block hash") {
@@ -433,7 +432,7 @@ func test_adjust_current_target_first_epoch{range_check_ptr, bitwise_ptr: Bitwis
 
     // Try to validate the block header.
     // This should succeed for valid block headers
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_and_apply_block_header(block_header);
     }
 
@@ -476,14 +475,14 @@ func test_insufficient_pow{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
         prev_timestamps,
     );
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
 
     // Block 1 will be read here.
     let block_header = fetch_block_header(1);
     
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
 
     // Check if the block hash is correct.
@@ -493,7 +492,7 @@ func test_insufficient_pow{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
 
     // Try to validate the block header.
     // This should succeed for the currently correct target.
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_and_apply_block_header(block_header);
     }
 
@@ -512,8 +511,8 @@ func test_insufficient_pow{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
     // Block 1 will be read here.
     let block_header = fetch_block_header(1);
     
-    with sha256_ptr {
-        let block_hash = hash256(block_header, BLOCK_HEADER_SIZE);
+    with hash256_ptr {
+        let block_hash = hash256_block_header(block_header);
     }
 
     // Check if the block hash is correct
