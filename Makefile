@@ -16,7 +16,7 @@ $(BUILD_DIR):
 
 CAIRO_DEPENDENCIES=$(shell find program/src -type f -iname "*.cairo" -not -iname "*aggregate_proofs.cairo" -not -iname "*increment_batch.cairo" -not -iname "*prove_batch.cairo")
 # Compilation rule for all three cairo programs
-$(BUILD_DIR)/%_compiled.json: program/src/%.cairo $(CAIRO_DEPENDENCIES) $(BUILD_DIR)
+$(BUILD_DIR)/%_compiled.json: program/src/%.cairo $(CAIRO_DEPENDENCIES) | $(BUILD_DIR)
 	cairo-compile $< --cairo_path program/src --output $@ --proof_mode
 
 
