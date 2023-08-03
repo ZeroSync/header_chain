@@ -9,7 +9,7 @@ from block_header.block_header import ChainState
 from block_header.median import TIMESTAMP_COUNT
 
 from utils.python_utils import setup_python_defs
-from crypto.sha256 import finalize_sha256
+from crypto.hash256 import finalize_hash256_block_header
 from crypto.merkle_mountain_range import mmr_append_leaves, MMR_ROOTS_LEN
 from utils.chain_state_utils import validate_block_headers, serialize_array, serialize_chain_state, block_hash_to_felt
 
@@ -19,9 +19,9 @@ func main{
     alloc_locals;
     setup_python_defs();
 
-    // initialize sha256_ptr
-    let sha256_ptr: felt* = alloc();
-    let sha256_ptr_start = sha256_ptr;
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
+    let hash256_ptr_start = hash256_ptr;
 
     // Read the previous state from the program input
     local block_height: felt;
@@ -61,10 +61,10 @@ func main{
 
     // Validate all blocks in this batch and update the state
     let (block_hashes) = alloc();
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         validate_block_headers(batch_size, block_hashes);
     }
-    finalize_sha256(sha256_ptr_start, sha256_ptr);
+    finalize_hash256_block_header(hash256_ptr_start, hash256_ptr);
 
     mmr_append_leaves{hash_ptr=pedersen_ptr, mmr_roots=mmr_roots}(block_hashes, batch_size);
 

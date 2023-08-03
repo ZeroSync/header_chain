@@ -80,14 +80,14 @@ func block_hash_to_felt(block_hash: felt*) -> felt {
 // The block header pedersen hashes are used to create a Merkle tree over all block headers of the batch
 //
 func validate_block_headers{
-    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, sha256_ptr: felt*, chain_state: ChainState
+    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, hash256_ptr: felt*, chain_state: ChainState
 }(n, block_hashes: felt*) {
     if (n == 0) {
         return ();
     }
     alloc_locals;
 
-    with sha256_ptr, chain_state {
+    with hash256_ptr, chain_state {
         // Get the next block header
         let block_header = fetch_block_header(chain_state.block_height + 1);
 

@@ -1,16 +1,21 @@
 //
 // To run only this test suite use:
-// protostar test --cairo-path=./src target tests/crypto/*_hash256*
+// protostar test --cairo-path=./program/src target program/tests/crypto/*_hash256*
 //
 %lang starknet
 
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
-from crypto.sha256 import finalize_sha256
 
 from utils.python_utils import setup_python_defs
-from utils.utils import assert_hashes_equal
-from crypto.sha256 import hash256
+from utils.utils import assert_hashes_equal, byteswap32
+from crypto.sha256 import hash256, finalize_sha256
+from crypto.sha256_packed import BLOCK_SIZE
+from crypto.hash256 import compute_hash256_block_header, finalize_hash256_block_header
+
+from block_header.block_header import fetch_block_header
+
+const HASH256_ROUNDS = BLOCK_SIZE - 1;
 
 @external
 func test_hash256{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
@@ -126,5 +131,112 @@ func test_hash256_long_input_2{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() 
     assert_hashes_equal(hash_expected, hash);
     // finalize sha256_ptr
     finalize_sha256(sha256_ptr_start, sha256_ptr);
+    return ();
+}
+
+func _test_hash256_block_header_loop{
+    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, hash256_ptr: felt*
+}(block_header: felt*, n) {
+    if (n == 0) {
+        return ();
+    }
+
+    alloc_locals;
+
+    with hash256_ptr {
+        let block_hash = compute_hash256_block_header(block_header);
+    }
+
+    let (expected) = alloc();
+
+    %{
+        felts = hex_to_felt("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+        def swap32(x):
+            return (((x << 24) & 0xFF000000) |
+                    ((x <<  8) & 0x00FF0000) |
+                    ((x >>  8) & 0x0000FF00) |
+                    ((x >> 24) & 0x000000FF))
+        segments.write_arg(ids.expected, [swap32(word) for word in felts] [::-1])
+    %}
+
+    assert_hashes_equal(block_hash, expected);
+
+    return _test_hash256_block_header_loop(block_header, n - 1);
+}
+
+@external
+func test_hash256_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
+    alloc_locals;
+    setup_python_defs();
+    
+    // initialize hash256_ptr
+    let hash256_ptr: felt* = alloc();
+    let hash256_ptr_start = hash256_ptr;
+
+    let block_header = fetch_block_header(0);
+
+    with hash256_ptr {
+        _test_hash256_block_header_loop(block_header, HASH256_ROUNDS);
+    }
+
+    // finalize hash256_ptr
+    finalize_hash256_block_header(hash256_ptr_start, hash256_ptr);
+    
+    return ();
+}
+
+from crypto.sha256 import compute_sha256
+from block_header.block_header import BLOCK_HEADER_SIZE
+from utils.utils import HASH_SIZE
+
+func _test_double_sha256_block_header_loop{
+    range_check_ptr, bitwise_ptr: BitwiseBuiltin*, sha256_ptr: felt*
+}(block_header: felt*, n) {
+    if (n == 0) {
+        return ();
+    }
+
+    alloc_locals;
+
+    with sha256_ptr {
+        let hash_first_round = compute_sha256(block_header, BLOCK_HEADER_SIZE);
+        let block_hash = compute_sha256(hash_first_round, HASH_SIZE);
+    }
+
+    let (expected) = alloc();
+
+    %{
+        felts = hex_to_felt("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+        def swap32(x):
+            return (((x << 24) & 0xFF000000) |
+                    ((x <<  8) & 0x00FF0000) |
+                    ((x >>  8) & 0x0000FF00) |
+                    ((x >> 24) & 0x000000FF))
+        segments.write_arg(ids.expected, [swap32(word) for word in felts] [::-1])
+    %}
+
+    assert_hashes_equal(block_hash, expected);
+
+    return _test_double_sha256_block_header_loop(block_header, n - 1);
+}
+
+@external
+func test_double_sha256_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
+    alloc_locals;
+    setup_python_defs();
+    
+    // initialize sha256_ptr
+    let sha256_ptr: felt* = alloc();
+    let sha256_ptr_start = sha256_ptr;
+
+    let block_header = fetch_block_header(0);
+
+    with sha256_ptr {
+        _test_double_sha256_block_header_loop(block_header, HASH256_ROUNDS);
+    }
+
+    // finalize sha256_ptr
+    finalize_sha256(sha256_ptr_start, sha256_ptr);
+    
     return ();
 }
