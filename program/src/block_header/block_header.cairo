@@ -23,13 +23,9 @@ from starkware.cairo.common.uint256 import (
 )
 from starkware.cairo.common.registers import get_fp_and_pc
 from utils.utils import byteswap32, UINT32_SIZE, BYTE, assert_hashes_equal, felt_to_uint256
-from crypto.hash256 import compute_hash256_block_header, Hash256
+from crypto.hash256 import hash256_block_header, Hash256
 from utils.pow2 import pow2
 from block_header.median import compute_timestamps_median, TIMESTAMP_COUNT
-// The size of a block header is 80 bytes
-const BLOCK_HEADER_SIZE = 80;
-// The size of a block header encoded as an array of Uint32 is 20 felts
-const BLOCK_HEADER_FELT_SIZE = BLOCK_HEADER_SIZE / UINT32_SIZE;
 
 // The minimum amount of work required for a block to be valid (represented as `bits`)
 const MAX_BITS = 0x1d00FFFF;
@@ -41,16 +37,6 @@ const EXPECTED_EPOCH_TIMESPAN = 60 * 60 * 24 * 14;
 // Number of blocks per epoch
 const BLOCKS_PER_EPOCH = 2016;
 
-// struct Hash256 {
-//     word_0: felt,
-//     word_1: felt,
-//     word_2: felt,
-//     word_3: felt,
-//     word_4: felt,
-//     word_5: felt,
-//     word_6: felt,
-//     word_7: felt,
-// }
 
 // Definition of a Bitcoin block header
 //
@@ -175,7 +161,7 @@ func validate_and_apply_block_header{
     
     // Validate and apply state transition
     let next_block_height     = chain_state.block_height + 1;
-    let next_block_hash       = compute_hash256_block_header(block_header);
+    let next_block_hash       = hash256_block_header(block_header);
     let next_total_work       = validate_proof_of_work(chain_state.total_work, chain_state.current_target, n_bits, next_block_hash);
     let (next_current_target,
          next_epoch_start_time) = adjust_difficulty(time, chain_state.current_target, next_block_height, chain_state.epoch_start_time);

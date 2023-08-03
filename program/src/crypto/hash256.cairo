@@ -9,13 +9,24 @@ from starkware.cairo.common.memset import memset
 
 from starkware.cairo.common.math import unsigned_div_rem
 
-// from block_header.block_header import Hash256, BLOCK_HEADER_SIZE, BLOCK_HEADER_FELT_SIZE
 from utils.utils import UINT32_SIZE
+
+from crypto.sha256_packed import (
+    BLOCK_SIZE,
+    SHIFTS,
+    get_round_constants,
+    compute_message_schedule,
+    sha2_compress,
+)
 
 // The size of a block header is 80 bytes
 const BLOCK_HEADER_SIZE = 80;
 // The size of a block header encoded as an array of Uint32 is 20 felts
 const BLOCK_HEADER_FELT_SIZE = BLOCK_HEADER_SIZE / UINT32_SIZE;
+
+const SHA256_CHUNK_FELT_SIZE = 16;
+
+const HASH256_INSTANCE_FELT_SIZE = 2 * SHA256_CHUNK_FELT_SIZE + Hash256.SIZE;
 
 struct Hash256 {
     word_0: felt,
@@ -28,18 +39,7 @@ struct Hash256 {
     word_7: felt,
 }
 
-from crypto.sha256_packed import (
-    BLOCK_SIZE,
-    get_round_constants,
-    compute_message_schedule,
-    sha2_compress,
-)
-
-const SHA256_CHUNK_FELT_SIZE = 16;
-
-const HASH256_INSTANCE_FELT_SIZE = 2 * SHA256_CHUNK_FELT_SIZE + Hash256.SIZE;
-
-func compute_hash256_block_header{range_check_ptr, hash256_ptr: felt*}(block_header: felt*) -> felt* {
+func hash256_block_header{range_check_ptr, hash256_ptr: felt*}(block_header: felt*) -> felt* {
     alloc_locals;
 
     let chunk_0 = hash256_ptr;
@@ -133,11 +133,11 @@ func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash
     let chunk_0_state = sha2_compress(initial_state, message_start, round_constants);
     local bitwise_ptr: BitwiseBuiltin* = bitwise_ptr;
 
-    let (local message_start_2: felt*) = alloc();
+    let (local message_start: felt*) = alloc();
 
     // Handle message.
 
-    tempvar message = message_start_2;
+    tempvar message = message_start;
     tempvar hash256_ptr = hash256_ptr;
     tempvar range_check_ptr = range_check_ptr;
     tempvar m = SHA256_CHUNK_FELT_SIZE;
@@ -177,18 +177,16 @@ func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash
    
     local hash256_ptr: felt* = hash256_ptr;
     local range_check_ptr = range_check_ptr;
-    compute_message_schedule(message_start_2);
+    compute_message_schedule(message_start);
     
-    let chunk_1_state = sha2_compress(chunk_0_state, message_start_2, round_constants);
+    let chunk_1_state = sha2_compress(chunk_0_state, message_start, round_constants);
     local bitwise_ptr: BitwiseBuiltin* = bitwise_ptr;
 
     // Handle message.
 
-    assert chunk_1_state[Hash256.SIZE] = 0x80000000 + 2 ** (35 * 1) * 0x80000000 + 2 ** (35 * 2) * 0x80000000 + 2 ** (35 * 3) * 0x80000000 +
-                                                      2 ** (35 * 4) * 0x80000000 + 2 ** (35 * 5) * 0x80000000 + 2 ** (35 * 6) * 0x80000000;
+    assert chunk_1_state[Hash256.SIZE] = SHIFTS * 0x80000000;
     memset(chunk_1_state + Hash256.SIZE + 1, 0, 6);
-    assert chunk_1_state[Hash256.SIZE + 7] = 0x00000100 + 2 ** (35 * 1) * 0x00000100 + 2 ** (35 * 2) * 0x00000100 + 2 ** (35 * 3) * 0x00000100 +
-                                                          2 ** (35 * 4) * 0x00000100 + 2 ** (35 * 5) * 0x00000100 + 2 ** (35 * 6) * 0x00000100;
+    assert chunk_1_state[Hash256.SIZE + 7] = SHIFTS * 32 * Hash256.SIZE;
 
     // Run hash256 on the 7 instances.
     
@@ -268,22 +266,14 @@ func finalize_hash256_block_header{range_check_ptr, bitwise_ptr: BitwiseBuiltin*
     return ();
 }
 
-const INITIAL_STATE_H0 = 0x6A09E667 + 2 ** (35 * 1) * 0x6A09E667 + 2 ** (35 * 2) * 0x6A09E667 + 2 ** (35 * 3) * 0x6A09E667 +
-                                      2 ** (35 * 4) * 0x6A09E667 + 2 ** (35 * 5) * 0x6A09E667 + 2 ** (35 * 6) * 0x6A09E667;
-const INITIAL_STATE_H1 = 0xBB67AE85 + 2 ** (35 * 1) * 0xBB67AE85 + 2 ** (35 * 2) * 0xBB67AE85 + 2 ** (35 * 3) * 0xBB67AE85 +
-                                      2 ** (35 * 4) * 0xBB67AE85 + 2 ** (35 * 5) * 0xBB67AE85 + 2 ** (35 * 6) * 0xBB67AE85;
-const INITIAL_STATE_H2 = 0x3C6EF372 + 2 ** (35 * 1) * 0x3C6EF372 + 2 ** (35 * 2) * 0x3C6EF372 + 2 ** (35 * 3) * 0x3C6EF372 +
-                                      2 ** (35 * 4) * 0x3C6EF372 + 2 ** (35 * 5) * 0x3C6EF372 + 2 ** (35 * 6) * 0x3C6EF372;
-const INITIAL_STATE_H3 = 0xA54FF53A + 2 ** (35 * 1) * 0xA54FF53A + 2 ** (35 * 2) * 0xA54FF53A + 2 ** (35 * 3) * 0xA54FF53A +
-                                      2 ** (35 * 4) * 0xA54FF53A + 2 ** (35 * 5) * 0xA54FF53A + 2 ** (35 * 6) * 0xA54FF53A;
-const INITIAL_STATE_H4 = 0x510E527F + 2 ** (35 * 1) * 0x510E527F + 2 ** (35 * 2) * 0x510E527F + 2 ** (35 * 3) * 0x510E527F +
-                                      2 ** (35 * 4) * 0x510E527F + 2 ** (35 * 5) * 0x510E527F + 2 ** (35 * 6) * 0x510E527F;
-const INITIAL_STATE_H5 = 0x9B05688C + 2 ** (35 * 1) * 0x9B05688C + 2 ** (35 * 2) * 0x9B05688C + 2 ** (35 * 3) * 0x9B05688C +
-                                      2 ** (35 * 4) * 0x9B05688C + 2 ** (35 * 5) * 0x9B05688C + 2 ** (35 * 6) * 0x9B05688C;
-const INITIAL_STATE_H6 = 0x1F83D9AB + 2 ** (35 * 1) * 0x1F83D9AB + 2 ** (35 * 2) * 0x1F83D9AB + 2 ** (35 * 3) * 0x1F83D9AB +
-                                      2 ** (35 * 4) * 0x1F83D9AB + 2 ** (35 * 5) * 0x1F83D9AB + 2 ** (35 * 6) * 0x1F83D9AB;
-const INITIAL_STATE_H7 = 0x5BE0CD19 + 2 ** (35 * 1) * 0x5BE0CD19 + 2 ** (35 * 2) * 0x5BE0CD19 + 2 ** (35 * 3) * 0x5BE0CD19 +
-                                      2 ** (35 * 4) * 0x5BE0CD19 + 2 ** (35 * 5) * 0x5BE0CD19 + 2 ** (35 * 6) * 0x5BE0CD19;
+const INITIAL_STATE_H0 = SHIFTS * 0x6A09E667;
+const INITIAL_STATE_H1 = SHIFTS * 0xBB67AE85;
+const INITIAL_STATE_H2 = SHIFTS * 0x3C6EF372;
+const INITIAL_STATE_H3 = SHIFTS * 0xA54FF53A;
+const INITIAL_STATE_H4 = SHIFTS * 0x510E527F;
+const INITIAL_STATE_H5 = SHIFTS * 0x9B05688C;
+const INITIAL_STATE_H6 = SHIFTS * 0x1F83D9AB;
+const INITIAL_STATE_H7 = SHIFTS * 0x5BE0CD19;
 
 // Returns the initial input state to IV.
 func get_initial_state{range_check_ptr}() -> felt* {
