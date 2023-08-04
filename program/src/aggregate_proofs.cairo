@@ -35,7 +35,8 @@ func main{
 }() {
     alloc_locals;
 
-    // / 0. Read the aggregate program hash from a hint
+    // 0. Read the aggregate program hash from a hint
+    //
     local AGGREGATE_PROGRAM_HASH;
     let prev_proof_mem: StarkProof* = alloc();
     let next_proof_mem: StarkProof* = alloc();
@@ -47,7 +48,8 @@ func main{
         segments.write_arg(ids.next_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.next_proof.address_ + int(x)) for x in program_input["next_proof"]])
     %}
 
-    // / 1. Verify the previous proof
+    // 1. Verify the previous proof
+    //
     let (prev_program_hash, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
     assert prev_output_len = OUTPUT_COUNT;
 
@@ -60,7 +62,8 @@ func main{
         assert prev_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
     }
 
-    // / 2. Verify the next program
+    // 2. Verify the next program
+    //
     let (next_program_hash, next_mem_values, next_output_len) = verify_cairo_proof(next_proof);
     assert next_output_len = OUTPUT_COUNT;
 
@@ -73,7 +76,9 @@ func main{
         assert next_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
     }
 
-    // / 3. Verify the proofs fit together
+    // 3. Verify the proofs fit together
+    //
+    
     // Ensure that the next_state of the previous proof is the prev_state of the next proof
     verify_chain_states(prev_mem_values + CHAIN_STATE_SIZE, next_mem_values);
 

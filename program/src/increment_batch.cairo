@@ -38,8 +38,8 @@ func main{
     let hash256_ptr: felt* = alloc();
     let hash256_ptr_start = hash256_ptr;
 
-    // / 0. Read the aggregate program hash from a hint
-    // TODO: implement me
+    // 0. Read the aggregate program hash from a hint
+    //
     local INCREMENT_PROGRAM_HASH;
     let prev_proof_mem: StarkProof* = alloc();
     local prev_proof: StarkProof* = prev_proof_mem;
@@ -48,7 +48,8 @@ func main{
         segments.write_arg(ids.prev_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.prev_proof.address_ + int(x)) for x in program_input["prev_proof"]])
     %}
 
-    // / 1. Read and verify the previous proof
+    // 1. Read and verify the previous proof
+    //
     let (prev_program_hash, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
     assert prev_output_len = OUTPUT_COUNT;
 
@@ -70,11 +71,11 @@ func main{
     memcpy(mmr_roots, &prev_mem_values[outputs.MMR_ROOTS], MMR_ROOTS_LEN);
 
     // [1..8]      best_block_hash
-    //      [9]         total_work
-    //      [10]        current_target
-    //      [11..21]    timestamps
-    //      [22]        epoch_start_time
-    //      [23..49]    mmr_roots
+    // [9]         total_work
+    // [10]        current_target
+    // [11..21]    timestamps
+    // [22]        epoch_start_time
+    // [23..49]    mmr_roots
 
     // The ChainState of the previous state
     let chain_state = ChainState(
