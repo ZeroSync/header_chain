@@ -45,3 +45,7 @@ batch_program_hash: $(BUILD_DIR)/prove_batch_compiled.json
 	sed -i -E "s/const BATCH_PROGRAM_HASH = 0x[0-9a-fA-F]+;/const BATCH_PROGRAM_HASH = $$PROGRAM_HASH;/" program/src/increment_batch.cairo; \
 	sed -i -E "s/const BATCH_PROGRAM_HASH = 0x[0-9a-fA-F]+;/const BATCH_PROGRAM_HASH = $$PROGRAM_HASH;/" program/src/aggregate_proofs.cairo; \
 	echo "Updated increment_batch.cairo and aggregate_proofs.cairo with new batch_program_hash $$PROGRAM_HASH."
+
+
+setup_db:
+	python prover/utils/header_db.py
