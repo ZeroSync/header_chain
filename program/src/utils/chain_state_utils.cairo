@@ -33,7 +33,7 @@ namespace outputs {
     const CURRENT_TARGET = 10;
     const TIMESTAMPS = 11;
     const EPOCH_START_TIME = 22;
-    const MMR_ROOTS = 27;
+    const MMR_ROOTS = 23;
 }
 
 func serialize_chain_state{output_ptr: felt*}(chain_state: ChainState) {
