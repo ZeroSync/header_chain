@@ -22,7 +22,7 @@ from starkware.cairo.common.uint256 import (
     uint256_le,
 )
 from starkware.cairo.common.registers import get_fp_and_pc
-from utils.utils import byteswap32, UINT32_SIZE, BYTE, assert_hashes_equal, felt_to_uint256
+from utils.utils import byteswap32, UINT32_SIZE, BYTE, assert_hashes_equal, felt_to_uint256, UINT32
 from crypto.hash256 import hash256_block_header, Hash256
 from utils.pow2 import pow2
 from block_header.median import compute_timestamps_median, TIMESTAMP_COUNT
@@ -91,7 +91,6 @@ struct ChainState {
 //
 func fetch_block_header(block_height) -> BlockHeader* {
     let (block_header: BlockHeader*) = alloc();
-
     %{
         block_hex = get_block_header_raw(ids.block_height)
         from_hex(block_hex, ids.block_header.address_)
@@ -216,14 +215,13 @@ func validate_proof_of_work{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
     }
 
     // Sum up the other 7 uint32 chunks of the hash into 1 felt
-    const BASE = 2 ** 32;
-    let hash_as_felt = hash_word_0_endian * BASE ** 0 +
-                       hash_word_1_endian * BASE ** 1 +
-                       hash_word_2_endian * BASE ** 2 +
-                       hash_word_3_endian * BASE ** 3 +
-                       hash_word_4_endian * BASE ** 4 +
-                       hash_word_5_endian * BASE ** 5 +
-                       hash_word_6_endian * BASE ** 6;
+    let hash_as_felt = hash_word_0_endian * UINT32 ** 0 +
+                       hash_word_1_endian * UINT32 ** 1 +
+                       hash_word_2_endian * UINT32 ** 2 +
+                       hash_word_3_endian * UINT32 ** 3 +
+                       hash_word_4_endian * UINT32 ** 4 +
+                       hash_word_5_endian * UINT32 ** 5 +
+                       hash_word_6_endian * UINT32 ** 6;
 
     let target = bits_to_target(next_n_bits);
 
