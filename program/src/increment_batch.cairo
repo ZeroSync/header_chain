@@ -65,10 +65,6 @@ func main{
     // 2. Increment the previous proof with a next batch
     //
 
-    // Read the previous state from the program input
-    local batch_size: felt;
-    %{ ids.batch_size = program_input["batch_size"] %}
-
     // The ChainState of the previous state
     let chain_state = ChainState(
         block_height = prev_mem_values[outputs.BLOCK_HEIGHT],
@@ -87,13 +83,19 @@ func main{
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
 
 
-    // Validate all blocks in this batch and update the state
+    // Validate all block headers in this batch and update the state
     // 
 
+    // Read the previous state from the program input
+    local batch_size: felt;
+    %{ ids.batch_size = program_input["batch_size"] %}
+
+    // Initialize hash256 pointer
     let hash256_ptr: felt* = alloc();
     let hash256_ptr_start = hash256_ptr;
 
-    let (block_hashes) = alloc();
+    // Validate each block header
+    let block_hashes: felt* = alloc();
     with hash256_ptr, chain_state {
         validate_block_headers(batch_size, block_hashes);
     }
