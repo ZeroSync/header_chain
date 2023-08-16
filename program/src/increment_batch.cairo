@@ -38,13 +38,13 @@ func main{
     let hash256_ptr: felt* = alloc();
     let hash256_ptr_start = hash256_ptr;
 
-    // 0. Read the aggregate program hash from a hint
+    // 0. Read the increment program hash from a hint
     //
-    local INCREMENT_PROGRAM_HASH;
+    local increment_program_hash;
     let prev_proof_mem: StarkProof* = alloc();
     local prev_proof: StarkProof* = prev_proof_mem;
     %{
-        ids.INCREMENT_PROGRAM_HASH = program_input["increment_program_hash"]
+        ids.increment_program_hash = program_input["increment_program_hash"]
         segments.write_arg(ids.prev_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.prev_proof.address_ + int(x)) for x in program_input["prev_proof"]])
     %}
 
@@ -53,53 +53,46 @@ func main{
     let (prev_program_hash, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
     assert prev_output_len = OUTPUT_COUNT;
 
-    // initialize hash256_ptr
-    let hash256_ptr: felt* = alloc();
-    let hash256_ptr_start = hash256_ptr;
+    // Ensure the previous program is either the "aggregate", "batch", or "increment" program
+    if (AGGREGATE_PROGRAM_HASH != prev_program_hash) {
+        if (BATCH_PROGRAM_HASH != prev_program_hash) {
+            assert increment_program_hash = prev_program_hash;
+            assert increment_program_hash = prev_mem_values[PROGRAM_HASH_INDEX];
+        }
+    }
+
+
+    // 2. Increment the previous proof with a next batch
+    //
 
     // Read the previous state from the program input
     local batch_size: felt;
     %{ ids.batch_size = program_input["batch_size"] %}
 
-    local program_hash: felt;
-    let (best_block_hash) = alloc();
-    let (prev_timestamps) = alloc();
-    let (mmr_roots) = alloc();
-
-    memcpy(best_block_hash, &prev_mem_values[outputs.BEST_BLOCK_HASH], HASH_FELT_SIZE);
-    memcpy(prev_timestamps, &prev_mem_values[outputs.TIMESTAMPS], TIMESTAMP_COUNT);
-    memcpy(mmr_roots, &prev_mem_values[outputs.MMR_ROOTS], MMR_ROOTS_LEN);
-
-    // [1..8]      best_block_hash
-    // [9]         total_work
-    // [10]        current_target
-    // [11..21]    timestamps
-    // [22]        epoch_start_time
-    // [23..49]    mmr_roots
-
     // The ChainState of the previous state
     let chain_state = ChainState(
-        prev_mem_values[outputs.BLOCK_HEIGHT],
-        prev_mem_values[outputs.TOTAL_WORK],
-        best_block_hash,
-        prev_mem_values[outputs.CURRENT_TARGET],
-        prev_mem_values[outputs.EPOCH_START_TIME],
-        prev_timestamps,
+        block_height = prev_mem_values[outputs.BLOCK_HEIGHT],
+        total_work = prev_mem_values[outputs.TOTAL_WORK],
+        best_block_hash = prev_mem_values + outputs.BEST_BLOCK_HASH,
+        current_target = prev_mem_values[outputs.CURRENT_TARGET],
+        epoch_start_time = prev_mem_values[outputs.EPOCH_START_TIME],
+        prev_timestamps = prev_mem_values + outputs.TIMESTAMPS
     );
 
-    // Ensure the program is either the aggregate/batch program or the increment program
-    if (prev_program_hash != AGGREGATE_PROGRAM_HASH) {
-        if (prev_program_hash != BATCH_PROGRAM_HASH) {
-            assert prev_program_hash = INCREMENT_PROGRAM_HASH;
-            assert prev_mem_values[PROGRAM_HASH_INDEX] = INCREMENT_PROGRAM_HASH;
-        }
-    }
+    // The previous roots of the Merkle mountain range
+    let mmr_roots: felt* = prev_mem_values + outputs.MMR_ROOTS;
 
     // Output the previous state
     serialize_chain_state(chain_state);
-    serialize_array(prev_mem_values + outputs.MMR_ROOTS, MMR_ROOTS_LEN);
+    serialize_array(mmr_roots, MMR_ROOTS_LEN);
+
 
     // Validate all blocks in this batch and update the state
+    // 
+
+    let hash256_ptr: felt* = alloc();
+    let hash256_ptr_start = hash256_ptr;
+
     let (block_hashes) = alloc();
     with hash256_ptr, chain_state {
         validate_block_headers(batch_size, block_hashes);
@@ -111,7 +104,7 @@ func main{
     serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
     // Padding zero such that NUM_OUTPUTS of the increment program and batch program are equal
-    serialize_word(INCREMENT_PROGRAM_HASH);
+    serialize_word(increment_program_hash);
 
     return ();
 }
