@@ -37,13 +37,13 @@ func main{
 
     // 0. Read the aggregate program hash from a hint
     //
-    local AGGREGATE_PROGRAM_HASH;
+    local aggregate_program_hash;
     let prev_proof_mem: StarkProof* = alloc();
     let next_proof_mem: StarkProof* = alloc();
     local prev_proof: StarkProof* = prev_proof_mem;
     local next_proof: StarkProof* = next_proof_mem;
     %{
-        ids.AGGREGATE_PROGRAM_HASH = program_input["aggregate_program_hash"]
+        ids.aggregate_program_hash = program_input["aggregate_program_hash"]
         segments.write_arg(ids.prev_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.prev_proof.address_ + int(x)) for x in program_input["prev_proof"]])
         segments.write_arg(ids.next_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.next_proof.address_ + int(x)) for x in program_input["next_proof"]])
     %}
@@ -55,8 +55,8 @@ func main{
 
     // Ensure the program is either the batch program or the aggregate program
     if (prev_program_hash != BATCH_PROGRAM_HASH) {
-        assert prev_program_hash = AGGREGATE_PROGRAM_HASH;
-        assert prev_mem_values[PROGRAM_HASH_INDEX] = AGGREGATE_PROGRAM_HASH;
+        assert prev_program_hash = aggregate_program_hash;
+        assert prev_mem_values[PROGRAM_HASH_INDEX] = aggregate_program_hash;
     } else {
         %{ print("This is a batch proof") %}
         assert prev_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
@@ -69,11 +69,11 @@ func main{
 
     // Ensure the program is either the batch program or the aggregate program
     if (next_program_hash != BATCH_PROGRAM_HASH) {
-        assert AGGREGATE_PROGRAM_HASH = next_program_hash;
-        assert next_mem_values[PROGRAM_HASH_INDEX] = AGGREGATE_PROGRAM_HASH;
+        assert aggregate_program_hash = next_program_hash;
+        assert next_mem_values[PROGRAM_HASH_INDEX] = aggregate_program_hash;
     } else {
         %{ print("This is a batch proof") %}
-        assert next_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesnt output its hash but only a padding zero
+        assert next_mem_values[PROGRAM_HASH_INDEX] = 0;  // Batch program doesn't output its hash but only a padding zero
     }
 
     // 3. Verify the proofs fit together
@@ -82,14 +82,14 @@ func main{
     // Ensure that the next_state of the previous proof is the prev_state of the next proof
     verify_chain_states(prev_mem_values + CHAIN_STATE_SIZE, next_mem_values);
 
-    // Output the initial state of the prev_proof
+    // Output the prev_state of the prev_proof
     serialize_array(prev_mem_values, CHAIN_STATE_SIZE);
 
-    // Output the end_state of the next_proof
+    // Output the next_state of the next_proof
     serialize_array(next_mem_values + CHAIN_STATE_SIZE, CHAIN_STATE_SIZE);
 
     // Output the aggregate program hash
-    serialize_word(AGGREGATE_PROGRAM_HASH);
+    serialize_word(aggregate_program_hash);
     return ();
 }
 
