@@ -1,6 +1,4 @@
 from starkware.cairo.common.registers import get_label_location
-from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
-from starkware.cairo.common.bitwise import bitwise_and
 from starkware.cairo.common.alloc import alloc
 
 // Ensures that 0 <= x < 256

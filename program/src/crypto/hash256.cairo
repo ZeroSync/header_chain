@@ -1,12 +1,8 @@
-
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin
-
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.registers import get_fp_and_pc
-
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.memset import memset
-
 from starkware.cairo.common.math import unsigned_div_rem
 
 from utils.utils import UINT32_SIZE
@@ -71,7 +67,6 @@ func hash256_block_header{range_check_ptr, hash256_ptr: felt*}(block_header: fel
     return hash256;
 }
 
-// NOTE: what about {message_schedule_ptr: felt*} ?
 
 func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash256_ptr: felt*, n: felt, initial_state: felt*, round_constants: felt*) {
     if (n == 0) {
@@ -94,35 +89,35 @@ func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash
     tempvar m = SHA256_CHUNK_FELT_SIZE;
 
     message_loop:
-    tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 0] = x0;
-    assert [range_check_ptr + 1] = MAX_VALUE - x0;
-    tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 2] = x1;
-    assert [range_check_ptr + 3] = MAX_VALUE - x1;
-    tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 4] = x2;
-    assert [range_check_ptr + 5] = MAX_VALUE - x2;
-    tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 6] = x3;
-    assert [range_check_ptr + 7] = MAX_VALUE - x3;
-    tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 8] = x4;
-    assert [range_check_ptr + 9] = MAX_VALUE - x4;
-    tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 10] = x5;
-    assert [range_check_ptr + 11] = MAX_VALUE - x5;
-    tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 12] = x6;
-    assert [range_check_ptr + 13] = MAX_VALUE - x6;
-    assert [message] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
-                            2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
+        tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 0] = x0;
+        assert [range_check_ptr + 1] = MAX_VALUE - x0;
+        tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 2] = x1;
+        assert [range_check_ptr + 3] = MAX_VALUE - x1;
+        tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 4] = x2;
+        assert [range_check_ptr + 5] = MAX_VALUE - x2;
+        tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 6] = x3;
+        assert [range_check_ptr + 7] = MAX_VALUE - x3;
+        tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 8] = x4;
+        assert [range_check_ptr + 9] = MAX_VALUE - x4;
+        tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 10] = x5;
+        assert [range_check_ptr + 11] = MAX_VALUE - x5;
+        tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 12] = x6;
+        assert [range_check_ptr + 13] = MAX_VALUE - x6;
+        assert [message] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
+                                2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
 
-    tempvar message = message + 1;
-    tempvar hash256_ptr = hash256_ptr + 1;
-    tempvar range_check_ptr = range_check_ptr + 14;
-    tempvar m = m - 1;
-    jmp message_loop if m != 0;
+        tempvar message = message + 1;
+        tempvar hash256_ptr = hash256_ptr + 1;
+        tempvar range_check_ptr = range_check_ptr + 14;
+        tempvar m = m - 1;
+        jmp message_loop if m != 0;
 
     // Run hash256 on the 7 instances.
     
@@ -143,35 +138,35 @@ func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash
     tempvar m = SHA256_CHUNK_FELT_SIZE;
 
     message_loop_2:
-    tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 0] = x0;
-    assert [range_check_ptr + 1] = MAX_VALUE - x0;
-    tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 2] = x1;
-    assert [range_check_ptr + 3] = MAX_VALUE - x1;
-    tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 4] = x2;
-    assert [range_check_ptr + 5] = MAX_VALUE - x2;
-    tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 6] = x3;
-    assert [range_check_ptr + 7] = MAX_VALUE - x3;
-    tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 8] = x4;
-    assert [range_check_ptr + 9] = MAX_VALUE - x4;
-    tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 10] = x5;
-    assert [range_check_ptr + 11] = MAX_VALUE - x5;
-    tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 12] = x6;
-    assert [range_check_ptr + 13] = MAX_VALUE - x6;
-    assert [message] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
-                            2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
+        tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 0] = x0;
+        assert [range_check_ptr + 1] = MAX_VALUE - x0;
+        tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 2] = x1;
+        assert [range_check_ptr + 3] = MAX_VALUE - x1;
+        tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 4] = x2;
+        assert [range_check_ptr + 5] = MAX_VALUE - x2;
+        tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 6] = x3;
+        assert [range_check_ptr + 7] = MAX_VALUE - x3;
+        tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 8] = x4;
+        assert [range_check_ptr + 9] = MAX_VALUE - x4;
+        tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 10] = x5;
+        assert [range_check_ptr + 11] = MAX_VALUE - x5;
+        tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 12] = x6;
+        assert [range_check_ptr + 13] = MAX_VALUE - x6;
+        assert [message] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
+                                2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
 
-    tempvar message = message + 1;
-    tempvar hash256_ptr = hash256_ptr + 1;
-    tempvar range_check_ptr = range_check_ptr + 14;
-    tempvar m = m - 1;
-    jmp message_loop_2 if m != 0;
+        tempvar message = message + 1;
+        tempvar hash256_ptr = hash256_ptr + 1;
+        tempvar range_check_ptr = range_check_ptr + 14;
+        tempvar m = m - 1;
+        jmp message_loop_2 if m != 0;
 
     // Run hash256 on the 7 instances.
    
@@ -204,36 +199,36 @@ func _finalize_hash256_inner{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(hash
     tempvar m = Hash256.SIZE;
 
     output_loop:
-    tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr] = x0;
-    assert [range_check_ptr + 1] = MAX_VALUE - x0;
-    tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 2] = x1;
-    assert [range_check_ptr + 3] = MAX_VALUE - x1;
-    tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 4] = x2;
-    assert [range_check_ptr + 5] = MAX_VALUE - x2;
-    tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 6] = x3;
-    assert [range_check_ptr + 7] = MAX_VALUE - x3;
-    tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 8] = x4;
-    assert [range_check_ptr + 9] = MAX_VALUE - x4;
-    tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 10] = x5;
-    assert [range_check_ptr + 11] = MAX_VALUE - x5;
-    tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
-    assert [range_check_ptr + 12] = x6;
-    assert [range_check_ptr + 13] = MAX_VALUE - x6;
+        tempvar x0 = hash256_ptr[0 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr] = x0;
+        assert [range_check_ptr + 1] = MAX_VALUE - x0;
+        tempvar x1 = hash256_ptr[1 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 2] = x1;
+        assert [range_check_ptr + 3] = MAX_VALUE - x1;
+        tempvar x2 = hash256_ptr[2 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 4] = x2;
+        assert [range_check_ptr + 5] = MAX_VALUE - x2;
+        tempvar x3 = hash256_ptr[3 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 6] = x3;
+        assert [range_check_ptr + 7] = MAX_VALUE - x3;
+        tempvar x4 = hash256_ptr[4 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 8] = x4;
+        assert [range_check_ptr + 9] = MAX_VALUE - x4;
+        tempvar x5 = hash256_ptr[5 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 10] = x5;
+        assert [range_check_ptr + 11] = MAX_VALUE - x5;
+        tempvar x6 = hash256_ptr[6 * HASH256_INSTANCE_FELT_SIZE];
+        assert [range_check_ptr + 12] = x6;
+        assert [range_check_ptr + 13] = MAX_VALUE - x6;
 
-    assert [outputs] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
-                            2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
+        assert [outputs] = x0 + 2 ** (35 * 1) * x1 + 2 ** (35 * 2) * x2 + 2 ** (35 * 3) * x3 +
+                                2 ** (35 * 4) * x4 + 2 ** (35 * 5) * x5 + 2 ** (35 * 6) * x6;
 
-    tempvar outputs = outputs + 1;
-    tempvar hash256_ptr = hash256_ptr + 1;
-    tempvar range_check_ptr = range_check_ptr + 14;
-    tempvar m = m - 1;
-    jmp output_loop if m != 0;
+        tempvar outputs = outputs + 1;
+        tempvar hash256_ptr = hash256_ptr + 1;
+        tempvar range_check_ptr = range_check_ptr + 14;
+        tempvar m = m - 1;
+        jmp output_loop if m != 0;
     
     return _finalize_hash256_inner(hash256_start + HASH256_INSTANCE_FELT_SIZE * BLOCK_SIZE, n - 1, initial_state, round_constants);
 }

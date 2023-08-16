@@ -7,8 +7,11 @@ const BYTE = 2 ** 8;
 const UINT16 = 2 ** 16;
 const UINT32 = 2 ** 32;
 
-// The byte size Uint32
+// The byte size of Uint32
 const UINT32_SIZE = 4;
+
+// The felt size of a hash
+const HASH_FELT_SIZE = 8;
 
 // Swap the endianness of an uint32
 //
@@ -25,8 +28,7 @@ func byteswap32{bitwise_ptr: BitwiseBuiltin*}(uint32) -> felt {
 }
 
 
-const HASH_FELT_SIZE = 8;
-const HASH_SIZE = HASH_FELT_SIZE * UINT32_SIZE;
+
 
 // Assert equality of two hashes represented as an array of 8 x Uint32
 //

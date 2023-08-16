@@ -118,7 +118,7 @@ func bits_to_target{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(bits) -> felt
     // Then, using a bitwise AND to get only the first 8 bits.
     let (bits_to_shift) = bitwise_and(bits, MASK_BITS_TO_SHIFT);
     // And finally, do the shifts
-    let exponent = bits_to_shift / 0x1000000;
+    tempvar exponent = bits_to_shift / 0x1000000;
 
     // Extract the last 3 bytes from `bits` to get the significand
     let (significand) = bitwise_and(bits, 0x00ffffff);
@@ -127,14 +127,14 @@ func bits_to_target{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(bits) -> felt
     // when the exponent is greater than 3.
     // And it is `significand` shifted `exponent` times to the right when
     // it is less than 3.
-    let is_greater_than_2 = (2 - exponent) * (1 - exponent) * exponent;
+    tempvar is_greater_than_2 = (2 - exponent) * (1 - exponent) * exponent;
     if (is_greater_than_2 == 0) {
         let shift = pow2(8 * (3 - exponent));
         let (target, _rem) = unsigned_div_rem(significand, shift);
         return target;
     } else {
         let shift = pow2(8 * (exponent - 3));
-        let target = significand * shift;
+        tempvar target = significand * shift;
         return target;
     }
 }

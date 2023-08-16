@@ -69,7 +69,7 @@ func main{
 
     // Ensure the program is either the batch program or the aggregate program
     if (next_program_hash != BATCH_PROGRAM_HASH) {
-        assert next_program_hash = AGGREGATE_PROGRAM_HASH;
+        assert AGGREGATE_PROGRAM_HASH = next_program_hash;
         assert next_mem_values[PROGRAM_HASH_INDEX] = AGGREGATE_PROGRAM_HASH;
     } else {
         %{ print("This is a batch proof") %}

@@ -87,13 +87,11 @@ func validate_block_headers{
     }
     alloc_locals;
 
-    with hash256_ptr, chain_state {
-        // Get the next block header
-        let block_header = fetch_block_header(chain_state.block_height + 1);
+    // Get the next block header
+    let block_header = fetch_block_header(chain_state.block_height + 1);
 
-        // Validate the block header and get the new state
-        validate_and_apply_block_header(block_header);
-    }
+    // Validate the block header and get the new state
+    validate_and_apply_block_header(block_header);
 
     let block_hash = block_hash_to_felt(chain_state.best_block_hash);
     assert [block_hashes] = block_hash;

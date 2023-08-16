@@ -34,18 +34,19 @@ func verify_timestamps_median{range_check_ptr}(timestamp_array: felt*, median) {
     tempvar range_check_ptr = range_check_ptr;
 
     verify_median_loop:
-    let delta_sign = sign([timestamp_ptr] - median);
-    if (delta_sign == 0) {
-        tempvar signs_diff = signs_diff;
-        tempvar n_median_occurences = n_median_occurences + 1;
-    } else {
-        tempvar signs_diff = signs_diff + delta_sign;
-        tempvar n_median_occurences = n_median_occurences;
-    }
-    tempvar timestamp_ptr = timestamp_ptr + 1;
-    tempvar n_timestamps = n_timestamps - 1;
-    tempvar range_check_ptr = range_check_ptr;
-    jmp verify_median_loop if n_timestamps != 0;
+        let delta_sign = sign([timestamp_ptr] - median);
+        if (delta_sign == 0) {
+            tempvar signs_diff = signs_diff;
+            tempvar n_median_occurences = n_median_occurences + 1;
+        } else {
+            tempvar signs_diff = signs_diff + delta_sign;
+            tempvar n_median_occurences = n_median_occurences;
+        }
+        tempvar timestamp_ptr = timestamp_ptr + 1;
+        tempvar n_timestamps = n_timestamps - 1;
+        tempvar range_check_ptr = range_check_ptr;
+        jmp verify_median_loop if n_timestamps != 0;
+    
     let absolute_signs = abs_value(signs_diff);
     with_attr error_message("invalid timestamps median") {
         assert_le(absolute_signs + 1, n_median_occurences);
