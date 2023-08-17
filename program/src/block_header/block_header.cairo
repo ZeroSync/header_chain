@@ -90,7 +90,7 @@ struct ChainState {
 // Fetch a block header from our blockchain data provider
 //
 func fetch_block_header(block_height) -> BlockHeader* {
-    let (block_header: BlockHeader*) = alloc();
+    let block_header: BlockHeader* = alloc();
     %{
         block_hex = get_block_header_raw(ids.block_height)
         from_hex(block_hex, ids.block_header.address_)
@@ -195,26 +195,24 @@ func validate_proof_of_work{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
     }
 
     // Validate that a block header's proof-of-work matches its target.
-    // Expects that the 4 most significant bytes of `block_hash` are zero.
     //
 
-    // Swap the endianess in the uint32 chunks of the hash
-    let hash_word_0_endian = byteswap32([next_block_hash + 0]);
-    let hash_word_1_endian = byteswap32([next_block_hash + 1]);
-    let hash_word_2_endian = byteswap32([next_block_hash + 2]);
-    let hash_word_3_endian = byteswap32([next_block_hash + 3]);
-    let hash_word_4_endian = byteswap32([next_block_hash + 4]);
-    let hash_word_5_endian = byteswap32([next_block_hash + 5]);
-    let hash_word_6_endian = byteswap32([next_block_hash + 6]);
-    let hash_word_7 = [next_block_hash + 7];
-
-    // Validate that the hash's most significant uint32 chunk is zero
+    // Validate that the hash's most significant 32-bit word is zero
     // This guarantees that the hash fits into a felt.
-    with_attr error_message("Expected the block hash's most significant uint32 chunk ({hash_word_7}) to be zero") {
-        assert 0 = hash_word_7;
+    with_attr error_message("Expected the block hash's most significant 32-bit word to be zero") {
+        assert 0 = next_block_hash[7];
     }
 
-    // Sum up the other 7 uint32 chunks of the hash into 1 felt
+    // Swap the endianess of the hash's other seven 32-bit words
+    let hash_word_0_endian = byteswap32(next_block_hash[0]);
+    let hash_word_1_endian = byteswap32(next_block_hash[1]);
+    let hash_word_2_endian = byteswap32(next_block_hash[2]);
+    let hash_word_3_endian = byteswap32(next_block_hash[3]);
+    let hash_word_4_endian = byteswap32(next_block_hash[4]);
+    let hash_word_5_endian = byteswap32(next_block_hash[5]);
+    let hash_word_6_endian = byteswap32(next_block_hash[6]);
+
+    // Sum up the hash's other seven 32-bit words into 1 felt
     let hash_as_felt = hash_word_0_endian * UINT32 ** 0 +
                        hash_word_1_endian * UINT32 ** 1 +
                        hash_word_2_endian * UINT32 ** 2 +
@@ -223,6 +221,7 @@ func validate_proof_of_work{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
                        hash_word_5_endian * UINT32 ** 5 +
                        hash_word_6_endian * UINT32 ** 6;
 
+    // Compute the expected target from the header's n_bits
     let target = bits_to_target(next_n_bits);
 
     // Validate that the hash is smaller than the target
@@ -258,11 +257,12 @@ func validate_and_compute_timestamps{range_check_ptr}(time, prev_n_bits, prev_ti
     //
 
     // Copy the timestamp of the most recent block
-    let (timestamps) = alloc();
+    let timestamps:felt* = alloc();
     assert timestamps[0] = time;
 
     // Copy the 10 most recent timestamps from the previous state
-    memcpy(timestamps + 1, prev_timestamps, TIMESTAMP_COUNT - 1);
+    memcpy( dst = timestamps + 1, src = prev_timestamps, len = TIMESTAMP_COUNT - 1 );
+    
     return timestamps;
 }
 
@@ -295,53 +295,56 @@ func adjust_difficulty{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
 ) -> (current_target: felt, epoch_start_time: felt) {
     alloc_locals;
 
+    // We perform a retarget only once per epoch, at its last block
     let (_, position_in_epoch) = unsigned_div_rem(block_height, BLOCKS_PER_EPOCH);
-    if (position_in_epoch == BLOCKS_PER_EPOCH - 1) {
-        // This is the last block of the current epoch, so we adjust the current_target now.
-
-        //
-        // This code is ported from Bitcoin Core
-        // https://github.com/bitcoin/bitcoin/blob/7fcf53f7b4524572d1d0c9a5fdc388e87eb02416/src/pow.cpp#L49
-        //
-
-        let fe_actual_timespan = time - prev_epoch_start_time;
-
-        // Limit adjustment step
-        let is_too_large = is_le_felt(EXPECTED_EPOCH_TIMESPAN * 4, fe_actual_timespan);
-        let is_too_small = is_le_felt(fe_actual_timespan, EXPECTED_EPOCH_TIMESPAN / 4);
-
-        if (is_too_large == 1) {
-            tempvar fe_actual_timespan = EXPECTED_EPOCH_TIMESPAN * 4;
-        } else {
-            if (is_too_small == 1) {
-                tempvar fe_actual_timespan = EXPECTED_EPOCH_TIMESPAN / 4;
-            } else {
-                tempvar fe_actual_timespan = fe_actual_timespan;
-            }
-        }
-        let actual_timespan = felt_to_uint256(fe_actual_timespan);
-        // Retarget
-        let bn_pow_limit = felt_to_uint256(MAX_TARGET);
-
-        let fe_target = bits_to_target(prev_n_bits);
-        let bn_new = felt_to_uint256(fe_target);
-        let (bn_new, _) = uint256_mul(bn_new, actual_timespan);
-        let UINT256_MAX_EPOCH_TIME = felt_to_uint256(EXPECTED_EPOCH_TIMESPAN);
-        let (bn_new, _) = uint256_unsigned_div_rem(bn_new, UINT256_MAX_EPOCH_TIME);
-        let next_bits = bn_new.low + bn_new.high * 2 ** 128;
-
-        let (below_limit) = uint256_le(bn_new, bn_pow_limit);
-        if (below_limit == 1) {
-            let next_n_bits = target_to_bits(bn_new.low + bn_new.high * 2 ** 128);
-            // Return next target and reset the epoch start time
-            return (next_n_bits, time);
-        } else {
-            // Return MAX_BITS and reset the epoch start time
-            return (MAX_BITS, time);
-        }
-    } else {
+    if (position_in_epoch != BLOCKS_PER_EPOCH - 1) {
         return (prev_n_bits, prev_epoch_start_time);
     }
+
+    // This is the last block of the current epoch, so we adjust the current_target now.
+
+    //
+    // This code is ported from Bitcoin Core
+    // https://github.com/bitcoin/bitcoin/blob/7fcf53f7b4524572d1d0c9a5fdc388e87eb02416/src/pow.cpp#L49
+    //
+
+    let fe_actual_timespan = time - prev_epoch_start_time;
+
+    // Limit adjustment step
+    let is_too_large = is_le_felt(EXPECTED_EPOCH_TIMESPAN * 4, fe_actual_timespan);
+    let is_too_small = is_le_felt(fe_actual_timespan, EXPECTED_EPOCH_TIMESPAN / 4);
+
+    if (is_too_large == 1) {
+        tempvar fe_actual_timespan = EXPECTED_EPOCH_TIMESPAN * 4;
+    } else {
+        if (is_too_small == 1) {
+            tempvar fe_actual_timespan = EXPECTED_EPOCH_TIMESPAN / 4;
+        } else {
+            tempvar fe_actual_timespan = fe_actual_timespan;
+        }
+    }
+    let actual_timespan = felt_to_uint256(fe_actual_timespan);
+    
+    // Retarget
+    let bn_pow_limit = felt_to_uint256(MAX_TARGET);
+
+    let fe_target = bits_to_target(prev_n_bits);
+    let bn_new = felt_to_uint256(fe_target);
+    let (bn_new, _) = uint256_mul(bn_new, actual_timespan);
+    let UINT256_MAX_EPOCH_TIME = felt_to_uint256(EXPECTED_EPOCH_TIMESPAN);
+    let (bn_new, _) = uint256_unsigned_div_rem(bn_new, UINT256_MAX_EPOCH_TIME);
+    let next_bits = bn_new.low + bn_new.high * 2 ** 128;
+
+    let (below_limit) = uint256_le(bn_new, bn_pow_limit);
+    if (below_limit == 1) {
+        let next_n_bits = target_to_bits(bn_new.low + bn_new.high * 2 ** 128);
+        // Return next target and reset the epoch start time
+        return (next_n_bits, time);
+    } else {
+        // Return MAX_BITS and reset the epoch start time
+        return (MAX_BITS, time);
+    }
+
 }
 
 // Calculate bits from target

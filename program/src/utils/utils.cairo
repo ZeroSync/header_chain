@@ -28,8 +28,6 @@ func byteswap32{bitwise_ptr: BitwiseBuiltin*}(uint32) -> felt {
 }
 
 
-
-
 // Assert equality of two hashes represented as an array of 8 x Uint32
 //
 func assert_hashes_equal(hash1: felt*, hash2: felt*) {
@@ -46,7 +44,6 @@ func assert_hashes_equal(hash1: felt*, hash2: felt*) {
     assert 0 = hash1[7] - hash2[7];
     return ();
 }
-
 
 
 // Convert a felt to a Uint256

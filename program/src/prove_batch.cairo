@@ -26,11 +26,11 @@ func main{
     // Read the previous state from the program input
     local block_height: felt;
     local total_work: felt;
-    let (best_block_hash) = alloc();
+    let best_block_hash : felt* = alloc();
     local current_target: felt;
     local epoch_start_time: felt;
-    let (prev_timestamps) = alloc();
-    let (mmr_roots) = alloc();
+    let prev_timestamps : felt* = alloc();
+    let mmr_roots : felt* = alloc();
     local program_hash: felt;
     local batch_size: felt;
 
@@ -60,7 +60,7 @@ func main{
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
 
     // Validate all blocks in this batch and update the state
-    let (block_hashes) = alloc();
+    let block_hashes: felt* = alloc();
     with hash256_ptr, chain_state {
         validate_block_headers(batch_size, block_hashes);
     }

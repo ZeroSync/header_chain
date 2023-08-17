@@ -65,7 +65,7 @@ func main{
     // 2. Increment the previous proof with a next batch
     //
 
-    // The ChainState of the previous state
+    // Parse the ChainState of the previous state from the previous proof's memory
     let chain_state = ChainState(
         block_height = prev_mem_values[outputs.BLOCK_HEIGHT],
         total_work = prev_mem_values[outputs.TOTAL_WORK],
@@ -84,7 +84,7 @@ func main{
 
 
     // Validate all block headers in this batch and update the state
-    // 
+    //
 
     // Read the previous state from the program input
     local batch_size: felt;

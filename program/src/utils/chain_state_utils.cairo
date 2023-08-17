@@ -60,8 +60,7 @@ func serialize_array{output_ptr: felt*}(array: felt*, array_len) {
 func block_hash_to_felt(block_hash: felt*) -> felt {
     // Validate that the hash's most significant uint32 chunk is zero
     // This guarantees that the hash fits into a felt.
-    with_attr error_message(
-            "The hash's most significant uint32 chunk ({block_hash[7]}) is not zero.") {
+    with_attr error_message("The hash's most significant uint32 chunk ({block_hash[7]}) is not zero.") {
         assert 0 = block_hash[7];
     }
 

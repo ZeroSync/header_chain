@@ -10,27 +10,27 @@ const MMR_ROOTS_LEN = 27;  // ~ log2( 100,000,000 headers )
 //
 func mmr_append{hash_ptr: HashBuiltin*, mmr_roots: felt*}(leaf) {
     alloc_locals;
-    let (roots_out) = alloc();
+    let roots_out:felt* = alloc();
     _mmr_append_loop(mmr_roots, roots_out, leaf, 0);
     let mmr_roots = roots_out;
     return ();
 }
 
-func _mmr_append_loop{hash_ptr: HashBuiltin*}(roots_in: felt*, roots_out: felt*, n, h) {
-    let r = roots_in[h];
+func _mmr_append_loop{hash_ptr: HashBuiltin*}(roots_in: felt*, roots_out: felt*, node, height) {
+    let root = roots_in[height];
 
-    if (r == 0) {
-        assert roots_out[h] = n;
-        let h = h + 1;
-        memcpy(roots_out + h, roots_in + h, MMR_ROOTS_LEN - h);
+    if (root == 0) {
+        assert roots_out[height] = node;
+        let height = height + 1;
+        memcpy(roots_out + height, roots_in + height, MMR_ROOTS_LEN - height);
         return ();
     }
 
-    let (n) = hash2(r, n);
+    let (node) = hash2(root, node);
 
-    assert roots_out[h] = 0;
+    assert roots_out[height] = 0;
 
-    return _mmr_append_loop(roots_in, roots_out, n, h + 1);
+    return _mmr_append_loop(roots_in, roots_out, node, height + 1);
 }
 
 // Append an array of leaves to the Merkle mountain range

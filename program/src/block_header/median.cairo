@@ -17,6 +17,8 @@ func compute_timestamps_median{range_check_ptr}(timestamp_array: felt*) -> felt 
         timestamps.sort()
         ids.median = timestamps[ids.TIMESTAMP_MEDIAN_INDEX]
     %}
+
+    // Verify the median given by the hint
     verify_timestamps_median(timestamp_array, median);
     return median;
 }
