@@ -26,7 +26,7 @@ from utils.chain_state_utils import (
 )
 
 const AGGREGATE_PROGRAM_HASH = 0x92559bd41c8951b211c4cdfcb85540c2fd29ea60d255309658b933d4fbe213;
-const BATCH_PROGRAM_HASH = 0x1ecdc2d98b50566369e224c36257d955a0a9a9fd62df95951f5713ab7434268;
+const BATCH_PROGRAM_HASH = 0x667df2c6ce371965ec67a1761ad9989e791a41a9c62b24b8bcb3137feb49888;
 
 func main{
     output_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
