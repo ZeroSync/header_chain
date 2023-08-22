@@ -10,6 +10,10 @@ setup:
 	git am ../0001-patch-verifier.patch && \
 	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/ 
 
+clean_setup:
+	cd prover && \
+	rm -rf cairo-lang
+
 BUILD_DIR=prover/build
 $(BUILD_DIR):
 	mkdir -p $@
