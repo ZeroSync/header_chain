@@ -1,23 +1,24 @@
-From dec49e9f81c420ffd449bfd5f1735d632d3e77c4 Mon Sep 17 00:00:00 2001
+From ebf3b2f6649b5b41ecfdd9640e2c8e573dbf57ff Mon Sep 17 00:00:00 2001
 From: Lukas <lucidLuckylee@users.noreply.github.com>
-Date: Sun, 30 Jul 2023 16:35:46 +0200
+Date: Wed, 23 Aug 2023 00:36:26 +0200
 Subject: [PATCH] patch verifier
 
 ---
- .../layouts/all_cairo/cairo_verifier.cairo    | 49 +++----------------
- 1 file changed, 8 insertions(+), 41 deletions(-)
+ .../layouts/all_cairo/cairo_verifier.cairo    | 57 +++++--------------
+ 1 file changed, 13 insertions(+), 44 deletions(-)
 
 diff --git a/src/starkware/cairo/cairo_verifier/layouts/all_cairo/cairo_verifier.cairo b/src/starkware/cairo/cairo_verifier/layouts/all_cairo/cairo_verifier.cairo
-index a03aa6d..1f99fb7 100644
+index a03aa6d..9ba6171 100644
 --- a/src/starkware/cairo/cairo_verifier/layouts/all_cairo/cairo_verifier.cairo
 +++ b/src/starkware/cairo/cairo_verifier/layouts/all_cairo/cairo_verifier.cairo
-@@ -1,16 +1,14 @@
+@@ -1,16 +1,13 @@
 -%builtins output pedersen range_check bitwise
 -
- from starkware.cairo.cairo_verifier.objects import CairoVerifierOutput
+-from starkware.cairo.cairo_verifier.objects import CairoVerifierOutput
  from starkware.cairo.common.alloc import alloc
  from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
- from starkware.cairo.common.hash_state import hash_felts
+-from starkware.cairo.common.hash_state import hash_felts
++// from starkware.cairo.common.hash_state import hash_felts
  from starkware.cairo.common.math import assert_nn_le
  from starkware.cairo.common.registers import get_label_location
 -from starkware.cairo.stark_verifier.air.layouts.all_cairo.public_verify import (
@@ -30,7 +31,7 @@ index a03aa6d..1f99fb7 100644
  from starkware.cairo.stark_verifier.air.public_input import PublicInput, SegmentInfo
  from starkware.cairo.stark_verifier.air.public_memory import AddrValue
  from starkware.cairo.stark_verifier.core.stark import StarkProof
-@@ -25,7 +23,7 @@ const INITIAL_PC = 1;
+@@ -25,7 +22,7 @@ const INITIAL_PC = 1;
  // See verify_stack() for more detail.
  func get_program_builtins() -> (n_builtins: felt, builtins: felt*) {
      let (builtins_address) = get_label_location(data);
@@ -39,7 +40,7 @@ index a03aa6d..1f99fb7 100644
      assert builtins_address[n_builtins] = 0;
      return (n_builtins=n_builtins, builtins=builtins_address);
  
-@@ -33,11 +31,7 @@ func get_program_builtins() -> (n_builtins: felt, builtins: felt*) {
+@@ -33,11 +30,7 @@ func get_program_builtins() -> (n_builtins: felt, builtins: felt*) {
      dw 'output';
      dw 'pedersen';
      dw 'range_check';
@@ -51,25 +52,37 @@ index a03aa6d..1f99fb7 100644
      dw 0;
  }
  
-@@ -46,7 +40,7 @@ func get_program_builtins() -> (n_builtins: felt, builtins: felt*) {
+@@ -46,7 +39,7 @@ func get_program_builtins() -> (n_builtins: felt, builtins: felt*) {
  // Returns the program hash and the output hash.
  func verify_cairo_proof{range_check_ptr, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*}(
      proof: StarkProof*
 -) -> (program_hash: felt, output_hash: felt) {
-+) -> (program_hash: felt, output_ptr: felt*, output_len: felt) {
++) -> (program_ptr: felt*, program_len: felt, output_ptr: felt*, output_len: felt) {
      alloc_locals;
      verify_proof(proof=proof, security_bits=SECURITY_BITS);
      return _verify_public_input(public_input=cast(proof.public_input, PublicInput*));
-@@ -54,7 +48,7 @@ func verify_cairo_proof{range_check_ptr, pedersen_ptr: HashBuiltin*, bitwise_ptr
+@@ -54,7 +47,7 @@ func verify_cairo_proof{range_check_ptr, pedersen_ptr: HashBuiltin*, bitwise_ptr
  
  func _verify_public_input{
      range_check_ptr, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*
 -}(public_input: PublicInput*) -> (program_hash: felt, output_hash: felt) {
-+}(public_input: PublicInput*) -> (program_hash: felt, output_ptr : felt*, output_len: felt) {
++}(public_input: PublicInput*) -> (program_ptr: felt*, program_len: felt, output_ptr : felt*, output_len: felt) {
      alloc_locals;
      local public_segments: SegmentInfo* = public_input.segments;
  
-@@ -124,13 +118,14 @@ func _verify_public_input{
+@@ -95,7 +88,10 @@ func _verify_public_input{
+         assert program[4] = 0x10780017fff7fff;  // Instruction: jmp rel 0.
+         assert program[5] = 0x0;
+         // Program hash.
+-        let (program_hash) = hash_felts{hash_ptr=pedersen_ptr}(data=program, length=program_len);
++		// NOTE: We calculate the program hash in the aggregate/increment program.
++		// This saves us one calculation of the program hash if the aggregate program aggregates
++		// the two same programs.
++        // let (program_hash) = hash_felts{hash_ptr=pedersen_ptr}(data=program, length=program_len);
+ 
+         // 2. Execution segment.
+         // 2.1. initial_fp, initial_pc.
+@@ -124,13 +120,14 @@ func _verify_public_input{
          let (output: felt*) = alloc();
          local output_len = output_stop - output_start;
          extract_range(addr=output_start, length=output_len, output=output);
@@ -82,11 +95,11 @@ index a03aa6d..1f99fb7 100644
      assert memory = &public_input.main_page[public_input.main_page_len];
  
 -    return (program_hash=program_hash, output_hash=output_hash);
-+    return (program_hash=program_hash, output_ptr=output, output_len=output_len);
++    return (program_ptr=program, program_len=program_len, output_ptr=output, output_len=output_len);
  }
  
  // Verifies the initial or the final part of the stack.
-@@ -177,31 +172,3 @@ func extract_range{memory: AddrValue*}(addr: felt, length: felt, output: felt*)
+@@ -177,31 +174,3 @@ func extract_range{memory: AddrValue*}(addr: felt, length: felt, output: felt*)
      let memory = &memory[1];
      return extract_range(addr=addr + 1, length=length - 1, output=&output[1]);
  }
