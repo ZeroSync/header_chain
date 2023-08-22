@@ -45,6 +45,14 @@ func assert_hashes_equal(hash1: felt*, hash2: felt*) {
     return ();
 }
 
+func assert_mem_equal(ptr_a: felt*, ptr_b: felt*, len) {
+	if (len == 0) {
+		return ();
+	}
+	assert 0 = ptr_a[0] - ptr_b[0];
+	return assert_mem_equal(&ptr_a[1],&ptr_b[1], len - 1);
+}
+
 
 // Convert a felt to a Uint256
 //

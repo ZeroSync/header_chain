@@ -27,7 +27,7 @@ batch_proof: $(BUILD_DIR)/prove_batch_compiled.json
 	PYTHONPATH=$$PYTHONPATH:. python prover/batch.py --batch_number=$(BATCH_NUMBER) --batch_size=$(BATCH_SIZE) --output_dir=$(BUILD_DIR)
 
 START=0
-END=$(START) + $(BATCH_SIZE) - 1
+END=$(shell expr $(START) + $(BATCH_SIZE) - 1)
 PREV_PROOF=batch_proofs/batch_0
 NEXT_PROOF=batch_proofs/batch_1
 aggregate_proof: $(BUILD_DIR)/aggregate_proofs_compiled.json
