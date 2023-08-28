@@ -7,6 +7,7 @@ from starkware.cairo.common.memcpy import memcpy
 
 from starkware.cairo.cairo_verifier.layouts.all_cairo.cairo_verifier import verify_cairo_proof
 from starkware.cairo.stark_verifier.core.stark import StarkProof
+from starkware.cairo.common.hash_state import hash_felts
 
 from utils.utils import HASH_FELT_SIZE
 from utils.python_utils import setup_python_defs
@@ -50,8 +51,9 @@ func main{
 
     // 1. Read and verify the previous proof
     //
-    let (prev_program_hash, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
+    let (prev_program, prev_program_len, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
     assert prev_output_len = OUTPUT_COUNT;
+	let (prev_program_hash) = hash_felts{hash_ptr=pedersen_ptr}(prev_program, prev_program_len);
 
     // Ensure the previous program is either the "aggregate", "batch", or "increment" program
     if (AGGREGATE_PROGRAM_HASH != prev_program_hash) {
@@ -64,7 +66,6 @@ func main{
 
     // 2. Increment the previous proof with a next batch
     //
-
     // Parse the ChainState of the previous state from the previous proof's memory
     let chain_state = ChainState(
         block_height = prev_mem_values[outputs.BLOCK_HEIGHT],
