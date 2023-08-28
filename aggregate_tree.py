@@ -1,8 +1,8 @@
 import os
 
-BLOCK_HEIGHT_OFFSET = 100000
+BLOCK_HEIGHT_OFFSET = 0
 BATCH_SIZE = 1300
-BATCH_NUM = 64 # Has to be power of two
+BATCH_NUM = 16 # Has to be power of two
 for i in range(BATCH_NUM):
     batch_cmd = f"make batch_proof BATCH_SIZE={BATCH_SIZE} BATCH_NUMBER={i}"
     print(batch_cmd)
