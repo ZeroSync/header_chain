@@ -82,7 +82,7 @@ if __name__ == "__main__":
         timestamps = [header_json["timestamp"]] + timestamps[:-1]
         total_work = total_work + (2 ** 256 // (bits_to_target(header_json["bits"]) + 1))
         if i % 2016 == 0:
-            print("\rcurrent header: {i}/{chain_length}")
+            print(f"\rcurrent header: {i}/{chain_length}", end="")
             epoch_start_time = header_json["timestamp"]
         if i % batch_size == batch_size - 1:
             chain_state = {
