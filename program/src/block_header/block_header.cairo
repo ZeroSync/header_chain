@@ -297,7 +297,10 @@ func adjust_difficulty{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
 
     // We perform a retarget only once per epoch, at its last block
     let (_, position_in_epoch) = unsigned_div_rem(block_height, BLOCKS_PER_EPOCH);
-    if (position_in_epoch != BLOCKS_PER_EPOCH - 1) {
+	if (position_in_epoch == 0) {
+		return (prev_n_bits, time);
+	}
+	if (position_in_epoch != BLOCKS_PER_EPOCH - 1) {
         return (prev_n_bits, prev_epoch_start_time);
     }
 
@@ -338,11 +341,11 @@ func adjust_difficulty{range_check_ptr, bitwise_ptr: BitwiseBuiltin*}(
     let (below_limit) = uint256_le(bn_new, bn_pow_limit);
     if (below_limit == 1) {
         let next_n_bits = target_to_bits(bn_new.low + bn_new.high * 2 ** 128);
-        // Return next target and reset the epoch start time
-        return (next_n_bits, time);
+        // Return next target but keep the epoch start time
+        return (next_n_bits, prev_epoch_start_time);
     } else {
-        // Return MAX_BITS and reset the epoch start time
-        return (MAX_BITS, time);
+        // Return MAX_BITS but keep the epoch start time
+        return (MAX_BITS, prev_epoch_start_time);
     }
 
 }
