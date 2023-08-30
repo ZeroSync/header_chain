@@ -29,7 +29,7 @@ from utils.chain_state_utils import (
     PROGRAM_HASH_INDEX,
 )
 
-const BATCH_PROGRAM_HASH = 0x667df2c6ce371965ec67a1761ad9989e791a41a9c62b24b8bcb3137feb49888;
+const BATCH_PROGRAM_HASH = 0x341b92f1ee4594687102b537a4219d5d56653456fab19d2edb2208b6cb584a2;
 
 // PUBLIC INPUTS LAYOUT (both prev_state and next_state)
 //  Initial state:
