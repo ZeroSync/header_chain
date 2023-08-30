@@ -1,6 +1,8 @@
-import os
+#import os
+import sys
 
-BLOCK_HEIGHT_OFFSET = 0
+block_height_offset = int(sys.argv[1])
+
 BATCH_SIZE = 1300
 BATCH_NUM = 16 # Has to be power of two
 for i in range(BATCH_NUM):
@@ -8,14 +10,14 @@ for i in range(BATCH_NUM):
     print(batch_cmd)
     #os.system(batch_cmd)
     if i % 2 == 1:
-        aggregate_cmd = f"make aggregate_proof PREV_PROOF=batch_proofs/batch_{i - 1} NEXT_PROOF=batch_proofs/batch_{i} START={(i - 1) * BATCH_SIZE + BLOCK_HEIGHT_OFFSET} END={(i + 1) * BATCH_SIZE - 1 + BLOCK_HEIGHT_OFFSET}"
+        aggregate_cmd = f"make aggregate_proof PREV_PROOF=batch_proofs/batch_{i - 1} NEXT_PROOF=batch_proofs/batch_{i} START={(i - 1) * BATCH_SIZE + block_height_offset} END={(i + 1) * BATCH_SIZE - 1 + block_height_offset}"
         print(aggregate_cmd)
         # os.system(aggregate_cmd)
         j = 4
         while i % j == j - 1:
-            start = (i + 1 - j) * BATCH_SIZE + BLOCK_HEIGHT_OFFSET
-            mid = (i + 1 - j // 2) * BATCH_SIZE - 1 + BLOCK_HEIGHT_OFFSET
-            end = (i + 1) * BATCH_SIZE - 1 + BLOCK_HEIGHT_OFFSET
+            start = (i + 1 - j) * BATCH_SIZE + block_height_offset
+            mid = (i + 1 - j // 2) * BATCH_SIZE - 1 + block_height_offset
+            end = (i + 1) * BATCH_SIZE - 1 + block_height_offset
             prev_proof = f"aggregate_{start}-{mid}"
             next_proof = f"aggregate_{mid + 1}-{end}"
             aggregate_cmd = f"make aggregate_proof PREV_PROOF={prev_proof} NEXT_PROOF={next_proof} START={start} END={end}"
