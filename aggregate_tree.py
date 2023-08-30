@@ -4,7 +4,7 @@ import sys
 block_height_offset = int(sys.argv[1])
 
 BATCH_SIZE = 1300
-BATCH_NUM = 16 # Has to be power of two
+BATCH_NUM = 48
 for i in range(BATCH_NUM):
     batch_cmd = f"make batch_proof BATCH_SIZE={BATCH_SIZE} BATCH_NUMBER={i}"
     print(batch_cmd)
