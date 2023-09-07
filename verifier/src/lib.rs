@@ -1,17 +1,18 @@
 use ark_serialize::CanonicalDeserialize;
 use binary::AirPublicInput;
 use binary::CompiledProgram;
-use claims::sharp_to_cairo::RecursiveCairoProof;
 use js_sys::Uint8Array;
 use layouts::recursive::Fp;
 use ministark::stark::Stark;
+use ministark::Proof;
 use num_bigint::BigUint;
+use sandstorm::claims::recursive::CairoVerifierClaim;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
 // TODO: this has to be 96
-const REQUIRED_SECURITY_BITS: usize = 1;
+const REQUIRED_SECURITY_BITS: u32 = 1;
 
 #[wasm_bindgen]
 extern "C" {
@@ -74,12 +75,9 @@ pub fn verify(
 
     let program: CompiledProgram<Fp> = serde_json::from_reader(program_array).unwrap();
     let air_public_input: AirPublicInput<Fp> = serde_json::from_reader(public_input_array).unwrap();
-    let proof = RecursiveCairoProof::deserialize_compressed(proof_array).unwrap();
+    let proof = Proof::<CairoVerifierClaim>::deserialize_compressed(proof_array).unwrap();
 
-    type A = layouts::recursive::AirConfig;
-    type T = layouts::recursive::ExecutionTrace;
-    type C = claims::sharp_to_cairo::CairoClaim<A, T>;
-    let claim = C::new(program, air_public_input.clone());
+    let claim = CairoVerifierClaim::new(program, air_public_input.clone());
 
     let output_segment = air_public_input.memory_segments.output.unwrap();
     let output_segment_length = (output_segment.stop_ptr - output_segment.begin_addr) as usize;

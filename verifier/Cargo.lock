@@ -360,6 +360,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
+name = "crypto-bigint"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "740fe28e594155f10cfc383984cbefd529d7396050557148f79cb0f621204124"
+dependencies = [
+ "generic-array",
+ "subtle",
+ "zeroize",
+]
+
+[[package]]
 name = "crypto-common"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -525,6 +536,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "hmac"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
+dependencies = [
+ "digest 0.10.7",
+]
+
+[[package]]
 name = "impl-codec"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -661,7 +681,7 @@ dependencies = [
 
 [[package]]
 name = "ministark-gpu"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ark-ff 0.4.2",
  "ark-ff-optimized",
@@ -910,6 +930,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1"
 
 [[package]]
+name = "rfc6979"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
+dependencies = [
+ "hmac",
+ "subtle",
+]
+
+[[package]]
 name = "rlp"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -985,6 +1015,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
+name = "sandstorm"
+version = "0.1.0"
+dependencies = [
+ "ark-ff 0.4.2",
+ "ark-poly",
+ "ark-serialize 0.4.2",
+ "ark-std 0.4.0",
+ "blake2",
+ "digest 0.10.7",
+ "ministark",
+ "ministark-gpu",
+ "num-bigint",
+ "rand",
+ "ruint",
+ "sandstorm-binary",
+ "sandstorm-builtins",
+ "sandstorm-crypto",
+ "sandstorm-layouts",
+ "sha2",
+ "sha3",
+]
+
+[[package]]
 name = "sandstorm-binary"
 version = "0.1.0"
 dependencies = [
@@ -1012,10 +1065,11 @@ dependencies = [
  "num-bigint",
  "ruint",
  "sandstorm-binary",
+ "starknet-crypto",
 ]
 
 [[package]]
-name = "sandstorm-claims"
+name = "sandstorm-crypto"
 version = "0.1.0"
 dependencies = [
  "ark-ff 0.4.2",
@@ -1031,8 +1085,6 @@ dependencies = [
  "ruint",
  "sandstorm-binary",
  "sandstorm-builtins",
- "sandstorm-layouts",
- "sha2",
  "sha3",
 ]
 
@@ -1172,6 +1224,58 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "starknet-crypto"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4dbb308033b5c60c5677645f7ba3b012b4e3e81f773480d27fb5f342d50621e6"
+dependencies = [
+ "crypto-bigint",
+ "hex",
+ "hmac",
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+ "rfc6979",
+ "sha2",
+ "starknet-crypto-codegen",
+ "starknet-curve",
+ "starknet-ff",
+ "zeroize",
+]
+
+[[package]]
+name = "starknet-crypto-codegen"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af6527b845423542c8a16e060ea1bc43f67229848e7cd4c4d80be994a84220ce"
+dependencies = [
+ "starknet-curve",
+ "starknet-ff",
+ "syn 2.0.28",
+]
+
+[[package]]
+name = "starknet-curve"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a68a0d87ae56572abf83ddbfd44259a7c90dbeeee1629a1ffe223e7f9a8f3052"
+dependencies = [
+ "starknet-ff",
+]
+
+[[package]]
+name = "starknet-ff"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db2cb1d9c0a50380cddab99cb202c6bfb3332728a2769bd0ca2ee80b0b390dd4"
+dependencies = [
+ "ark-ff 0.4.2",
+ "crypto-bigint",
+ "getrandom",
+ "hex",
 ]
 
 [[package]]
@@ -1426,8 +1530,8 @@ dependencies = [
  "js-sys",
  "ministark",
  "num-bigint",
+ "sandstorm",
  "sandstorm-binary",
- "sandstorm-claims",
  "sandstorm-layouts",
  "serde",
  "serde-wasm-bindgen",

@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-claims = { path = "../../sandstorm-mirror/claims", package = "sandstorm-claims" }
+sandstorm = { path = "../../sandstorm-mirror" }
 layouts = { path = "../../sandstorm-mirror/layouts", package = "sandstorm-layouts" }
 binary = { path = "../../sandstorm-mirror/binary", package = "sandstorm-binary" }
 ministark = { path = "../../ministark-mirror", package = "ministark" }
