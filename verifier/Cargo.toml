@@ -18,7 +18,14 @@ serde = { version = "1.0.136", features = ["derive"] }
 serde-wasm-bindgen = "0.4"
 js-sys = "0.3.57"
 getrandom = { version = "0.2", features = ["js"] }
-num-bigint = { version = "0.4" }
+num-bigint = "0.4"
+
+[build-dependencies]
+ministark-gpu = { path = "../../ministark-mirror/gpu", features = [ "arkworks" ] }
+binary = { path = "../../sandstorm-mirror/binary", package = "sandstorm-binary" }
+ark-serialize = "0.4"
+serde_json = "1.0"
+serde = "1.0.136"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

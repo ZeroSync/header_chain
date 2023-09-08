@@ -266,12 +266,12 @@
 
     async function verify () {
         
-        const fetch_program_bytes = await fetch("proofs/prove_batch_compiled.json");
-        const fetch_public_input_bytes = await fetch("proofs/batch_0/air-public-input.json");
-        const fetch_proof = await fetch("proofs/batch_0/batch_proof.bin")
+        // const fetch_program_bytes = await fetch("proofs/prove_batch_compiled.json");
+        const fetch_public_input_bytes = await fetch("proofs/aggregate/air-public-input.json");
+        const fetch_proof = await fetch("proofs/aggregate/proof.bin")
 
         const result = await stark_verifier.verify(
-            await fetch_program_bytes.arrayBuffer(),
+            // await fetch_program_bytes.arrayBuffer(),
             await fetch_public_input_bytes.arrayBuffer(),
             await fetch_proof.arrayBuffer()
         )

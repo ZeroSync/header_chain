@@ -1529,6 +1529,7 @@ dependencies = [
  "getrandom",
  "js-sys",
  "ministark",
+ "ministark-gpu",
  "num-bigint",
  "sandstorm",
  "sandstorm-binary",

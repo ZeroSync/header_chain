@@ -8,6 +8,7 @@ use ministark::Proof;
 use num_bigint::BigUint;
 use sandstorm::claims::recursive::CairoVerifierClaim;
 use serde::{Deserialize, Serialize};
+use std::sync::OnceLock;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
@@ -63,20 +64,20 @@ const EPOCH_START_TIME_INDEX: usize = CHAIN_STATE_OFFSET + 22;
 const MMR_ROOTS_INDEX: usize = CHAIN_STATE_OFFSET + 23;
 const PROGRAM_HASH_INDEX: usize = CHAIN_STATE_OFFSET + 50;
 
+static PROGRAM: OnceLock<CompiledProgram<Fp>> = OnceLock::new();
+
+fn aggregate_program() -> &'static CompiledProgram<Fp> {
+    const BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/program.bin"));
+    PROGRAM.get_or_init(|| CompiledProgram::deserialize_compressed(BYTES).unwrap())
+}
+
+/// Verifies an aggregate program proof
 #[wasm_bindgen]
-pub fn verify(
-    program_bytes: &Uint8Array,
-    public_input_bytes: &Uint8Array,
-    proof_bytes: &Uint8Array,
-) -> JsValue {
-    let program_array: &[u8] = &program_bytes.to_vec();
-    let public_input_array: &[u8] = &public_input_bytes.to_vec();
-    let proof_array: &[u8] = &proof_bytes.to_vec();
-
-    let program: CompiledProgram<Fp> = serde_json::from_reader(program_array).unwrap();
-    let air_public_input: AirPublicInput<Fp> = serde_json::from_reader(public_input_array).unwrap();
-    let proof = Proof::<CairoVerifierClaim>::deserialize_compressed(proof_array).unwrap();
-
+pub fn verify(public_input_bytes: &Uint8Array, proof_bytes: &Uint8Array) -> JsValue {
+    let air_public_input: AirPublicInput<Fp> =
+        serde_json::from_reader(&*public_input_bytes.to_vec()).unwrap();
+    let proof = Proof::deserialize_compressed(&*proof_bytes.to_vec()).unwrap();
+    let program = aggregate_program().clone();
     let claim = CairoVerifierClaim::new(program, air_public_input.clone());
 
     let output_segment = air_public_input.memory_segments.output.unwrap();
