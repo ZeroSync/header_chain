@@ -26,8 +26,7 @@ from utils.chain_state_utils import (
     PROGRAM_HASH_INDEX,
 )
 
-const AGGREGATE_PROGRAM_HASH = 0x92559bd41c8951b211c4cdfcb85540c2fd29ea60d255309658b933d4fbe213;
-const BATCH_PROGRAM_HASH = 0x341b92f1ee4594687102b537a4219d5d56653456fab19d2edb2208b6cb584a2;
+const AGGREGATE_PROGRAM_HASH = 0x357d1bf7d6ed1d880bd355e79d750cd5979016c21953f3f371f7e5519898926;
 
 func main{
     output_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*
@@ -39,7 +38,7 @@ func main{
     let hash256_ptr: felt* = alloc();
     let hash256_ptr_start = hash256_ptr;
 
-    // 0. Read the increment program hash from a hint
+    // 0. Read the increment program hash and the previous proof from a hint.
     //
     local increment_program_hash;
     let prev_proof_mem: StarkProof* = alloc();
@@ -49,31 +48,30 @@ func main{
         segments.write_arg(ids.prev_proof.address_, [(int(x, 16) if x.startswith('0x') else ids.prev_proof.address_ + int(x)) for x in program_input["prev_proof"]])
     %}
 
-    // 1. Read and verify the previous proof
+    // 1. Verify the previous proof
     //
-    let (prev_program, prev_program_len, prev_mem_values, prev_output_len) = verify_cairo_proof(prev_proof);
+    let (prev_program, prev_program_len, prev_mem_values, prev_output_len) = verify_cairo_proof(
+        prev_proof
+    );
     assert prev_output_len = OUTPUT_COUNT;
-	let (prev_program_hash) = hash_felts{hash_ptr=pedersen_ptr}(prev_program, prev_program_len);
+    let (prev_program_hash) = hash_felts{hash_ptr=pedersen_ptr}(prev_program, prev_program_len);
 
-    // Ensure the previous program is either the "aggregate", "batch", or "increment" program
+    // Ensure the previous program is either the "aggregate" or "increment" program
     if (AGGREGATE_PROGRAM_HASH != prev_program_hash) {
-        if (BATCH_PROGRAM_HASH != prev_program_hash) {
-            assert increment_program_hash = prev_program_hash;
-            assert increment_program_hash = prev_mem_values[PROGRAM_HASH_INDEX];
-        }
+        assert increment_program_hash = prev_program_hash;
+        assert increment_program_hash = prev_mem_values[PROGRAM_HASH_INDEX];
     }
-
 
     // 2. Increment the previous proof with a next batch
     //
     // Parse the ChainState of the previous state from the previous proof's memory
     let chain_state = ChainState(
-        block_height = prev_mem_values[outputs.BLOCK_HEIGHT],
-        total_work = prev_mem_values[outputs.TOTAL_WORK],
-        best_block_hash = prev_mem_values + outputs.BEST_BLOCK_HASH,
-        current_target = prev_mem_values[outputs.CURRENT_TARGET],
-        epoch_start_time = prev_mem_values[outputs.EPOCH_START_TIME],
-        prev_timestamps = prev_mem_values + outputs.TIMESTAMPS
+        block_height=prev_mem_values[outputs.BLOCK_HEIGHT],
+        total_work=prev_mem_values[outputs.TOTAL_WORK],
+        best_block_hash=prev_mem_values + outputs.BEST_BLOCK_HASH,
+        current_target=prev_mem_values[outputs.CURRENT_TARGET],
+        epoch_start_time=prev_mem_values[outputs.EPOCH_START_TIME],
+        prev_timestamps=prev_mem_values + outputs.TIMESTAMPS,
     );
 
     // The previous roots of the Merkle mountain range
@@ -83,11 +81,7 @@ func main{
     serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
 
-
     // Validate all block headers in this batch and update the state
-    //
-
-    // Read the previous state from the program input
     local batch_size: felt;
     %{ ids.batch_size = program_input["batch_size"] %}
 
@@ -106,7 +100,7 @@ func main{
     // Output the next state
     serialize_chain_state(chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
-    // Padding zero such that NUM_OUTPUTS of the increment program and batch program are equal
+    // Output increment program hash
     serialize_word(increment_program_hash);
 
     return ();
