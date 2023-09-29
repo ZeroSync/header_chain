@@ -92,7 +92,7 @@ struct ChainState {
 func fetch_block_header(block_height) -> BlockHeader* {
     let block_header: BlockHeader* = alloc();
     %{
-        block_hex = get_block_header_raw(ids.block_height)
+        block_hex = BTC_API.get_block_header_raw(ids.block_height)
         from_hex(block_hex, ids.block_header.address_)
     %}
     return block_header;
