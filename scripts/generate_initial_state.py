@@ -8,6 +8,8 @@ import prover.utils.header_db as header_db
 chain_length = int(sys.argv[1])
 batch_size = int(sys.argv[2])
 
+if len(sys.argv) != 3:
+    print(f"Usage: python {sys.argv[0]} [chain_length] [batch_size]")
 
 def little_endian(string):
     splited = [str(string)[i: i + 2] for i in range(0, len(str(string)), 2)]
