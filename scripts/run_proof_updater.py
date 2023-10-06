@@ -12,8 +12,8 @@ CHAINTIP_DELAY = 6
 parser = argparse.ArgumentParser(
     description="Connect to a bitcoin instance to continuously generate proofs of the previous X block headers")
 parser.add_argument("start_height")
-parser.add_argument("batch_size", default=DEFAULT_BATCH_SIZE, required=False)
-parser.add_argumemt("ftp_username")
+parser.add_argument("--batch_size", default=DEFAULT_BATCH_SIZE, required=False)
+parser.add_argument("ftp_username")
 parser.add_argument("ftp_password")
 
 args = parser.parse_args()
