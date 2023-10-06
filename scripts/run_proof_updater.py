@@ -32,7 +32,7 @@ if __name__ == "__main__":
             # Publish new proof via ftp
             current_height = current_height + batch_size
             try:
-                session = ftplib.FTP_TLS('www382.your-server.de/', args.ftp_username, args.ftp_password, )
+                session = ftplib.FTP_TLS('www382.your-server.de', args.ftp_username, args.ftp_password, )
                 session.prot_p()
                 proof_binary = open(f"prover/build/increment_0-{current_height}/increment_proof.bin", "rb")
                 air_public_inputs = open(f"prover/build/increment_0-{current_height}/air-public-input.json", "rb")
