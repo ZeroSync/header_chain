@@ -1,6 +1,8 @@
 import argparse
 import os
 import time
+import ftplib
+import smtplib
 from program.src.utils.btc_api import BTCAPI
 
 DEFAULT_BATCH_SIZE = 660
@@ -10,7 +12,9 @@ CHAINTIP_DELAY = 6
 parser = argparse.ArgumentParser(
     description="Connect to a bitcoin instance to continuously generate proofs of the previous X block headers")
 parser.add_argument("start_height")
-parser.add_argument("batch_size", default=DEFAULT_BATCH_SIZE)
+parser.add_argument("batch_size", default=DEFAULT_BATCH_SIZE, required=False)
+parser.add_argumemt("ftp_username")
+parser.add_argument("ftp_password")
 
 args = parser.parse_args()
 
@@ -25,10 +29,23 @@ if __name__ == "__main__":
         if (remaining_blocks >= batch_size + CHAINTIP_DELAY):
             # TODO: Generate increment proof
             os.system(f"make BATCH_SIZE={batch_size} PREV_PROOF=increment_0-{current_height} END={current_height + batch_size} increment_proof")
-            # TODO: Check proof for failure and send email
-            # TODO: Publish new proof via ftp
-            print(f"Proving {current_height + batch_size}")
+            # Publish new proof via ftp
             current_height = current_height + batch_size
+            try:
+                session = ftplib.FTP_TLS('www382.your-server.de/', args.ftp_username, args.ftp_password, )
+                session.prot_p()
+                proof_binary = open(f"prover/build/increment_0-{current_height}/increment_proof.bin", "rb")
+                air_public_inputs = open(f"prover/build/increment_0-{current_height}/air-public-input.json", "rb")
+                session.mkd(f"height_{current_height}")
+                session.cwd(f"height_{current_height}")
+                session.storbinary("STOR aggregated_proof.bin", proof_binary)
+                session.storbinary("STOR air-public-input.json", air_public_inputs)
+                proof_binary.close()
+                air_public_inputs.close()
+                session.quit()
+            except BaseException:
+                # TODO: Send failure email/notification
+                exit()
         else:
             # Wait 10 minutes for every block
             print(f"Waiting {batch_size + CHAINTIP_DELAY - remaining_blocks} blocks")
