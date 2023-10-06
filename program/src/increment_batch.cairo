@@ -64,8 +64,8 @@ func main{
 
     // 2. Increment the previous proof with a next batch
     //
-    // Parse the ChainState of the previous state from the previous proof's memory
-    let chain_state = ChainState(
+    // Parse the ChainState of the initial state from the previous proof's memory
+    let initial_chain_state = ChainState(
         block_height=prev_mem_values[outputs.BLOCK_HEIGHT],
         total_work=prev_mem_values[outputs.TOTAL_WORK],
         best_block_hash=prev_mem_values + outputs.BEST_BLOCK_HASH,
@@ -74,11 +74,21 @@ func main{
         prev_timestamps=prev_mem_values + outputs.TIMESTAMPS,
     );
 
+    // Parse the ChainState of the previous state from the previous proof's memory
+    let chain_state = ChainState(
+        block_height=prev_mem_values[CHAIN_STATE_SIZE + outputs.BLOCK_HEIGHT],
+        total_work=prev_mem_values[CHAIN_STATE_SIZE + outputs.TOTAL_WORK],
+        best_block_hash=prev_mem_values + CHAIN_STATE_SIZE + outputs.BEST_BLOCK_HASH,
+        current_target=prev_mem_values[CHAIN_STATE_SIZE + outputs.CURRENT_TARGET],
+        epoch_start_time=prev_mem_values[CHAIN_STATE_SIZE + outputs.EPOCH_START_TIME],
+        prev_timestamps=prev_mem_values + CHAIN_STATE_SIZE + outputs.TIMESTAMPS,
+    );
+
     // The previous roots of the Merkle mountain range
     let mmr_roots: felt* = prev_mem_values + outputs.MMR_ROOTS;
 
-    // Output the previous state
-    serialize_chain_state(chain_state);
+    // Output the initial state
+    serialize_chain_state(initial_chain_state);
     serialize_array(mmr_roots, MMR_ROOTS_LEN);
 
     // Validate all block headers in this batch and update the state
