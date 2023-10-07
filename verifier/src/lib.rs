@@ -12,8 +12,7 @@ use std::sync::OnceLock;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
-// TODO: this has to be 96
-const REQUIRED_SECURITY_BITS: u32 = 1;
+const REQUIRED_SECURITY_BITS: u32 = 80;
 
 #[wasm_bindgen]
 extern "C" {

@@ -4,7 +4,7 @@ use ministark_gpu::fields::p3618502788666131213697322783095070105623107215331596
 use std::{env, fs::File, io, path::Path};
 
 // TODO: generate program from `cairo-compile`
-const PROGRAM_BYTES: &[u8] = include_bytes!("./aggregate_program_compiled.json");
+const PROGRAM_BYTES: &[u8] = include_bytes!("./increment_batch_compiled.json");
 
 fn main() -> io::Result<()> {
     // Extract the compiled program data from the Cairo program JSON
@@ -12,7 +12,7 @@ fn main() -> io::Result<()> {
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let path = Path::new(&out_dir).join("program.bin");
     program.serialize_compressed(File::create(path)?).unwrap();
-    println!("cargo:rerun-if-changed=aggregate_program_compiled.json");
+    println!("cargo:rerun-if-changed=increment_batch_compiled.json");
     println!("cargo:rerun-if-changed=build.rs");
     Ok(())
 }
