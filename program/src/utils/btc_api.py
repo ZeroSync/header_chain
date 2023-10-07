@@ -129,6 +129,7 @@ class BitcoinCLI(BTCAPI):
         return tx_json
 
     def get_chain_length(self):
+        self.rpc = AuthServiceProxy(self.rpc_auth)
         blockchain_info = self.rpc.getblockchaininfo()
         return int(blockchain_info['headers'])
 
