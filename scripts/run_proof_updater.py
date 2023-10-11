@@ -27,7 +27,7 @@ if __name__ == "__main__":
     while True:
         remaining_blocks = btc_api.get_chain_length() - current_height
         if (remaining_blocks >= batch_size + CHAINTIP_DELAY):
-            # TODO: Generate increment proof
+            # Generate increment proof
             os.system(f"make BATCH_SIZE={batch_size} PREV_PROOF=increment_0-{current_height} END={current_height + batch_size} increment_proof")
             # Publish new proof via ftp
             current_height = current_height + batch_size
@@ -36,8 +36,13 @@ if __name__ == "__main__":
                 session.prot_p()
                 proof_binary = open(f"prover/build/increment_0-{current_height}/increment_proof.bin", "rb")
                 air_public_inputs = open(f"prover/build/increment_0-{current_height}/air-public-input.json", "rb")
+                # Upload to a height_XYZ folder to store the proof
                 session.mkd(f"height_{current_height}")
                 session.cwd(f"height_{current_height}")
+                session.storbinary("STOR aggregated_proof.bin", proof_binary)
+                session.storbinary("STOR air-public-input.json", air_public_inputs)
+                # Upload a copy of the proof to the "latest" folder
+                session.cwd("../latest")
                 session.storbinary("STOR aggregated_proof.bin", proof_binary)
                 session.storbinary("STOR air-public-input.json", air_public_inputs)
                 proof_binary.close()
