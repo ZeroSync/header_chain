@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 sandstorm = { path = "../../sandstorm" }
 layouts = { path = "../../sandstorm/layouts", package = "sandstorm-layouts" }
-binary = { path = "../../sandstorm/binary", package = "sandstorm" }
+binary = { path = "../../sandstorm/binary", package = "sandstorm-binary" }
 ministark = { path = "../../ministark", package = "ministark" }
 ark-ff = "0.4"
 ark-serialize = "0.4"
@@ -22,7 +22,7 @@ num-bigint = "0.4"
 
 [build-dependencies]
 ministark-gpu = { path = "../../ministark/gpu", features = [ "arkworks" ] }
-binary = { path = "../../sandstorm/binary", package = "sandstorm" }
+binary = { path = "../../sandstorm/binary", package = "sandstorm-binary" }
 ark-serialize = "0.4"
 serde_json = "1.0"
 serde = "1.0.136"
