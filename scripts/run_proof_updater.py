@@ -41,7 +41,11 @@ if __name__ == "__main__":
                 session.cwd(f"height_{current_height}")
                 session.storbinary("STOR aggregated_proof.bin", proof_binary)
                 session.storbinary("STOR air-public-input.json", air_public_inputs)
+                proof_binary.close()
+                air_public_inputs.close()
                 # Upload a copy of the proof to the "latest" folder
+                proof_binary = open(f"prover/build/increment_0-{current_height}/increment_proof.bin", "rb")
+                air_public_inputs = open(f"prover/build/increment_0-{current_height}/air-public-input.json", "rb")
                 session.cwd("../latest")
                 session.storbinary("STOR aggregated_proof.bin", proof_binary)
                 session.storbinary("STOR air-public-input.json", air_public_inputs)
