@@ -2,12 +2,12 @@ import argparse
 import os
 import time
 import ftplib
-import smtplib
+# import smtplib
 from program.src.utils.btc_api import BTCAPI
 
-DEFAULT_BATCH_SIZE = 660
+DEFAULT_BATCH_SIZE = 18
 # How many blocks up to the chain tip have to exist
-CHAINTIP_DELAY = 6
+CHAINTIP_DELAY = 3
 
 parser = argparse.ArgumentParser(
     description="Connect to a bitcoin instance to continuously generate proofs of the previous X block headers")
