@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sandstorm = { path = "../../sandstorm" }
-layouts = { path = "../../sandstorm/layouts", package = "sandstorm-layouts" }
-binary = { path = "../../sandstorm/binary", package = "sandstorm-binary" }
-ministark = { path = "../../ministark", package = "ministark" }
+sandstorm = { git="https://github.com/ZeroSync/sandstorm" }
+layouts = { git="https://github.com/ZeroSync/sandstorm", package = "sandstorm-layouts" }
+binary = { git="https://github.com/ZeroSync/sandstorm", package = "sandstorm-binary" }
+ministark = { git="https://github.com/ZeroSync/ministark", package = "ministark" }
 ark-ff = "0.4"
 ark-serialize = "0.4"
 serde_json = "1.0"
@@ -19,10 +19,11 @@ serde-wasm-bindgen = "0.4"
 js-sys = "0.3.57"
 getrandom = { version = "0.2", features = ["js"] }
 num-bigint = "0.4"
+ministark-gpu = { git="https://github.com/ZeroSync/ministark", features = ["arkworks"] }
 
 [build-dependencies]
-ministark-gpu = { path = "../../ministark/gpu", features = [ "arkworks" ] }
-binary = { path = "../../sandstorm/binary", package = "sandstorm-binary" }
+ministark-gpu = { version="0.1", git="https://github.com/ZeroSync/ministark", features = [ "arkworks" ] }
+binary = { git="https://github.com/ZeroSync/sandstorm", package = "sandstorm-binary" }
 ark-serialize = "0.4"
 serde_json = "1.0"
 serde = "1.0.136"
