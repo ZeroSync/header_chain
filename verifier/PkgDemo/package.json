@@ -1,0 +1,9 @@
+{
+  "name": "PkgDemo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "zerosync_wasm": "0.1.0"
+  }
+}
