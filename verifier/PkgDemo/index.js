@@ -1,22 +1,18 @@
-import pkg from 'zerosync_wasm';
+import pkg from 'zerosync_header_chain_verifier';
 const { verify } = pkg;
-// Load inputs needed for the verify function
-const publicInputBytes = new Uint8Array([]);
-const proofBytes = new Uint8Array([]);
+import fs from 'fs';
+function main() {
+    // Sample serialized public input and proof. You'll replace these with real data.
+    const publicInputBytes = new Uint8Array(fs.readFileSync('air-public-input.json'));
+    const proofBytes = new Uint8Array(fs.readFileSync('proof.bin'));
 
-async function useVerifyFunction() {
-    try {
-        
-        const result = await verify(publicInputBytes, proofBytes);
-        
-        if (result instanceof Error) {
-            console.error("Verification error:", result.message);
-        } else {
-            console.log("Verification succeeded:", result);
-        }
-    } catch (error) {
-        console.error("Error occurred:", error);
+    const result = verify(publicInputBytes, proofBytes);
+
+    // Assuming the returned result has a property `isValid` to check the verification status
+    if (result.isValid) {
+        console.log("The header chain is valid!");
+    } else {
+        console.log("The header chain is invalid.");
     }
 }
-
-useVerifyFunction();
+main();

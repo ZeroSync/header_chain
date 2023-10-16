@@ -2,8 +2,10 @@
   "name": "PkgDemo",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "license": "MIT",
   "dependencies": {
-    "zerosync_wasm": "0.1.0"
+    "zerosync_header_chain_verifier": "^0.1.1"
   }
+
 }
