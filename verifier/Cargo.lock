@@ -1534,8 +1534,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "zerosync_wasm"
-version = "0.1.0"
+name = "zerosync_header_chain_verifier"
+version = "0.2.0"
 dependencies = [
  "ark-ff 0.4.2",
  "ark-serialize 0.4.2",

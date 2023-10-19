@@ -5,7 +5,7 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
+    "node-fetch": "^3.3.2",
     "zerosync_header_chain_verifier": "^0.1.1"
   }
-
 }

@@ -3,4 +3,4 @@ __pycache__
 prover/build
 prover/cairo-lang
 .protostar_cache
-veriier/increment_batch_compiled.json
+verifier/increment_batch_compiled.json
