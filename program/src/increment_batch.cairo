@@ -85,7 +85,7 @@ func main{
     );
 
     // The previous roots of the Merkle mountain range
-    let mmr_roots: felt* = prev_mem_values + outputs.MMR_ROOTS;
+    let mmr_roots: felt* = prev_mem_values + CHAIN_STATE_SIZE + outputs.MMR_ROOTS;
 
     // Output the initial state
     serialize_chain_state(initial_chain_state);
