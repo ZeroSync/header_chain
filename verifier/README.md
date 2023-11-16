@@ -1,6 +1,6 @@
-# zerosync__verifier
-Zerosync verifier allows to verify ZeroSync‘s latest header chain STARK proofs in your node project. The proof validates the Bitcoin consensus for the header chain and provides the latest header chain state.
-To Instantly verify Bitcoin's header chain in your browser,check out our [demo here](https://https://zerosync.org/demo/) 
+# ZeroSync Verifier (Rust and WASM)
+The ZeroSync verifier allows to verify ZeroSync‘s latest header chain STARK proofs in your node or rust project. The proof validates the Bitcoin consensus for the header chain and provides the latest header chain state.
+To Instantly verify Bitcoin's header chain in your browser, check out our [demo here](https://https://zerosync.org/demo/) 
 
 ## Installation
 #### NPM
@@ -45,7 +45,5 @@ main();
 ```
 
 ## Dependencies
-The verifier package leverages in the following dependencies
 - Ministark: GPU accelerated STARK prover and verifier
 - Sandstorm: Cairo prover powered by miniSTARK
-
