@@ -8,7 +8,17 @@ setup:
 	git clone git@github.com:starkware-libs/cairo-lang.git; \
 	cd cairo-lang && \
 	git am ../0001-patch-verifier.patch && \
-	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/ 
+	cp -R src/starkware/cairo/* ~/cairo_venv/lib/python3.9/site-packages/starkware/cairo/
+	cd .. && \
+	git clone git@github.com:ZeroSync/header_chain_parser.git && \
+	cd header_chain_parser && \
+	cargo +nightly build && \
+	cd .. && \
+	git clone git@github.com:ZeroSync/sandstorm.git && \
+	cd sandstorm && \
+	cargo +nightly build -p sandstorm-cli -r -F parallel && \
+	cd ..
+	
 
 clean_setup:
 	cd prover && \
